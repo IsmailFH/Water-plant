@@ -1,0 +1,118 @@
+{% extends 'reports/base.html' %}
+{% block title %} تقرير السيارات{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4"> تعبئة عدد السيارات</h2>
+<form method="get" class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <label class="form-label">من تاريخ:</label>
+        <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">إلى تاريخ:</label>
+        <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+    </div>
+
+
+    <div class="col-md-3">
+        <label class="form-label">اسم السائق:</label>
+        <select name="driver" class="form-select">
+            <option value="">الكل</option>
+            {% for driver in drivers %}
+                <option value="{{ driver.id }}" {% if driver.id|stringformat:"s" == selected_driver_id %}selected{% endif %}>
+                    {{ driver.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+
+    <div class="col-md-3">
+        <label class="form-label">اسم المساعد:</label>
+        <select name="assistant" class="form-select">
+            <option value="">الكل</option>
+            {% for assistant in assistants %}
+                <option value="{{ assistant.id }}" {% if assistant.id|stringformat:"s" == selected_assistant_id %}selected{% endif %}>
+                    {{ assistant.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+<div class="col-md-3">
+    <label class="form-label">تم التوثيق لـ:</label>
+    <input type="text" name="documented_for" class="form-control">
+</div>
+
+
+<div class="col-md-3">
+    <label class="form-label">ملاحظات:</label>
+    <input type="text" name="notes"  class="form-control" >
+</div>
+
+
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">بحث</button>
+    </div>
+</form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>اليوم</th>
+                    <th>التاريخ</th>
+                    <th>اسم السائق</th>
+                    <th>اسم المساعد</th>
+                    <th>عدد السيارات</th>
+                    <th>عدد الموثقة</th>
+                    <th>تم التوثيق لـ</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+
+                <tr>
+                    <td>{{ record.day}}</td>
+                    <td>{{ record.date }}</td>
+                    <td>{{ record.name.name }}</td>
+                    <td>{{ record.assistant }}</td>
+                    <td>{{ record.car_count }}</td>
+                    <td>{{ record.documented_count }}</td>
+                    <td>{{ record.documented_for }}</td>
+                    <td>{{ record.notes }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7">لا يوجد سجلات لعرضها</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="row my-4">
+    <div class="col-md-6">
+        <div class="alert alert-info text-center">
+            <h5>إجمالي عدد السيارات: {{ total_car_count }}</h5>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="alert alert-success text-center">
+            <h5>إجمالي عدد الموثقة: {{ total_documented_count }}</h5>
+        </div>
+    </div>
+</div>
+
+    <div class="text-end mt-3">
+        <a href="{% url 'add_car_record' %}" class="btn btn-success">إضافة سجل جديد</a>
+    </div>
+    <div class="text-end mt-3">
+
+        <a href="{% url 'add_driver' %}" class="btn btn-success">إضافة سائق</a>
+        <a href="{% url 'add_institution' %}" class="btn btn-success">إضافة مؤسسة</a>
+    </div>
+</div>
+
+
+{% endblock %}

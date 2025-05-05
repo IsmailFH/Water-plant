@@ -1,0 +1,92 @@
+{% extends 'reports/base.html' %}
+{% load form_filters %}
+{% block title %}إضافة سجل مصروف{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">إضافة سجل مصروف</h2>
+
+    <form method="post" class="row g-3">
+        {% csrf_token %}
+
+        <div class="col-md-6">
+            {{ form.date.label_tag }}
+            {{ form.date }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form.day.label_tag }}
+            {{ form.day }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form.palce.label_tag }}
+            {{ form.palce|add_class:"form-select select2" }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form.expenses_type.label_tag }}
+            {{ form.expenses_type|add_class:"form-select select2" }}
+        </div>
+
+
+        <div class="col-md-6">
+            {{ form.amount.label_tag }}
+            {{ form.amount }}
+        </div>
+
+        <div class="col-md-12">
+            {{ form.notes.label_tag }}
+            {{ form.notes|add_class:"form-control" }}
+        </div>
+
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-success">حفظ السجل</button>
+            <a href="{% url 'expenses_list' %}" class="btn btn-secondary">عرض السجلات</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            width: '100%',
+            allowClear: true
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.getElementById('id_date');
+        const dayInput = document.getElementById('id_day');
+
+        function updateDayFromDate() {
+            const dateValue = new Date(dateInput.value);
+            if (!isNaN(dateValue)) {
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const arabicDays = {
+                    'Sunday': 'الأحد',
+                    'Monday': 'الاثنين',
+                    'Tuesday': 'الثلاثاء',
+                    'Wednesday': 'الأربعاء',
+                    'Thursday': 'الخميس',
+                    'Friday': 'الجمعة',
+                    'Saturday': 'السبت'
+                };
+                const engDay = days[dateValue.getDay()];
+                dayInput.value = arabicDays[engDay];
+            }
+        }
+
+        dateInput.addEventListener('change', updateDayFromDate);
+        updateDayFromDate();
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            width: '100%',
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %}

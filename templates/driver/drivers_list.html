@@ -1,0 +1,49 @@
+{% extends 'reports/base.html' %}
+{% block title %} عرض السائقين{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">قائمة السائقين</h2>
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label class="form-label">فلترة حسب المؤسسة:</label>
+        <select name="institution" class="form-select">
+            <option value="">الكل</option>
+            {% for inst in institutions %}
+                <option value="{{ inst }}" {% if selected_institution == inst %}selected{% endif %}>
+                    {{ inst }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">بحث</button>
+    </div>
+</form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>اسم السائق</th>
+                    <th>رقم الهوية</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.id_number }}</td>
+
+                </tr>
+                {% empty %}
+                <tr><td colspan="7">لا يوجد سجلات لعرضها</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <a href="{% url 'add_driver' %}" class="btn btn-success">إضافة سائق جديد</a>
+    </div>
+</div>
+{% endblock %}

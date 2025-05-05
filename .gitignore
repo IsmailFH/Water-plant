@@ -1,0 +1,31 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+worker code viwe.py
+water_plant/.env
+reports/users_code.py
+# Virtual environment
+venv/
+env/
+
+#templates
+templates/attendance/payment_history.html
+templates/attendance/attendance_history.html
+templates/attendance/my_attendance.html
+templates/fuel/add_archive.html
+templates/fuel/add_archive2.html
+templates/reports/base archive.html
+templates/salary
+templates/worker
+templates/workers/add_worker_archive.html
+
+

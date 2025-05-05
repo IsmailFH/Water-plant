@@ -1,0 +1,84 @@
+{% extends 'reports/base.html' %}
+{% block title %}التأخيرات والانصرافات والغيابات{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h1 class="text-center mb-4 text-primary">التأخيرات والانصرافات والغيابات</h1>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-5">
+            <label class="form-label">من تاريخ:</label>
+            <input type="date" name="start_date" value="{{ start_date }}" class="form-control" required>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">إلى تاريخ:</label>
+            <input type="date" name="end_date" value="{{ end_date }}" class="form-control" required>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">عرض</button>
+        </div>
+    </form>
+
+    {% if delay_results %}
+    <div class="table-responsive" id="report-content">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>اسم الموظف</th>
+                    <th>إجمالي التأخير (دقائق)</th>
+                    <th>إجمالي الانصراف المبكر (دقائق)</th>
+                    <th>عدد أيام الغياب</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in delay_results %}
+                <tr>
+                    <td>{{ row.employee.name }}</td>
+                    <td class="{% if row.total_delay > 0 %}text-danger{% else %}text-success{% endif %}">
+                        {{ row.total_delay }}
+                    </td>
+                    <td class="{% if row.total_early_leave > 0 %}text-danger{% else %}text-success{% endif %}">
+                        {{ row.total_early_leave }}
+                    </td>
+                    <td class="{% if row.absence_days > 0 %}text-danger{% else %}text-success{% endif %}">
+                        {{ row.absence_days }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">لا يوجد بيانات حضور في هذه الفترة</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+        <div class="text-end mt-4">
+        <a href="{% url 'attendance_report' %}" class="btn btn-success px-4 py-2">
+            عرض تقرير الحضور الفردي
+        </a>
+            <button onclick="printReport()" class="btn btn-primary px-4 py-2">طباعة</button>
+    </div>
+
+</div>
+
+<script>
+    function printReport() {
+        var printContent = document.getElementById('report-content').outerHTML;
+        var printWindow = window.open('', '', 'height=600,width=800');
+
+        printWindow.document.write('<html><head><title>طباعة التقرير</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; direction: rtl; }');
+        printWindow.document.write('.table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }');
+        printWindow.document.write('.table th, .table td { padding: 10px; text-align: center; border: 1px solid #ddd; }');
+        printWindow.document.write('.list-group { margin-bottom: 20px; }');
+        printWindow.document.write('.list-group-item { padding: 10px; border: 1px solid #ddd; }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(printContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+</script>
+{% endblock %}

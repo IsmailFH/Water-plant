@@ -1,0 +1,114 @@
+{% extends 'reports/base.html' %}
+{% block title %} سجلات الصيانة% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4"> سجلات الصيانة</h2>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">من تاريخ:</label>
+            <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">إلى تاريخ:</label>
+            <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+        </div>
+
+<div class="col-md-3">
+    <label class="form-label">مكان الصيانة:</label>
+    <select name="maintenance_location" class="form-select">
+        <option value="">الكل</option>
+        {% for loc in locations %}
+            <option value="{{ loc.id }}" {% if loc.id|stringformat:"s" == maintenance_location %}selected{% endif %}>
+                {{ loc.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="col-md-3">
+    <label class="form-label">البند الرئيسي:</label>
+    <select name="main_item" class="form-select">
+        <option value="">الكل</option>
+        {% for item in main_items %}
+            <option value="{{ item.id }}" {% if item.id|stringformat:"s" == main_item %}selected{% endif %}>
+                {{ item.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="col-md-3">
+    <label class="form-label">البند الفرعي:</label>
+    <select name="sub_item" class="form-select">
+        <option value="">الكل</option>
+        {% for sub in sub_items %}
+            <option value="{{ sub.id }}" {% if sub.id|stringformat:"s" == sub_item %}selected{% endif %}>
+                {{ sub.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<div class="col-md-3">
+    <label class="form-label">الجهاز:</label>
+    <select name="device" class="form-select">
+        <option value="">الكل</option>
+        {% for dev in devices %}
+            <option value="{{ dev.id }}" {% if dev.id|stringformat:"s" == device %}selected{% endif %}>
+                {{ dev.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">بحث</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>اليوم</th>
+                    <th>التاريخ</th>
+                    <th>مكان الصيانة</th>
+                    <th>البند الرئيسي</th>
+                    <th>البند الفرعي</th>
+                    <th>الجهاز</th>
+                    <th>الملاحظات</th>
+                    <th>المبلغ</th>
+
+</tr>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record.day }}</td>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.maintenance_location }}</td>
+                        <td>{{ record.main_item }}</td>
+                        <td>{{ record.sub_item }}</td>
+                        <td>{{ record.device }}</td>
+                        <td>{{ record.notes }}</td>
+                        <td>{{ record.amount }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8">لا توجد سجلات لعرضها</td></tr>
+                {% endfor %}
+                <tr class="table-secondary fw-bold">
+        <td colspan="7" class="text-end">الإجمالي:</td>
+        <td>{{ total_amount }}</td>
+    </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <a href="{% url 'add_maintenance' %}" class="btn btn-success">إضافة سجل صيانة جديد</a>
+  <a href="{% url 'add_options' %}" class="btn btn-success">إضافة بند صيانة جديد</a>
+    </div>
+</div>
+{% endblock %}

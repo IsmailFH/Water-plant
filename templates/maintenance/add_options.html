@@ -1,0 +1,62 @@
+{% extends 'reports/base.html' %}
+{% load form_filters %}
+{% block title %}إضافة بند صيانة{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">إضافة بند صيانة</h2>
+
+    <form method="post" class="row g-3 mb-4">
+        {% csrf_token %}
+        <div class="col-12">
+            <h3>مكان صيانة</h3>
+            {{ loc_form.name|add_class:"form-control" }}
+        </div>
+        <div class="col-12 text-end">
+            <button type="submit" name="submit_loc" class="btn btn-primary">إضافة</button>
+        </div>
+    </form>
+
+    <form method="post" class="row g-3 mb-4">
+        {% csrf_token %}
+        <div class="col-12">
+            <h3>بند رئيسي</h3>
+            {{ main_form.name|add_class:"form-control" }}
+        </div>
+        <div class="col-12 text-end">
+            <button type="submit" name="submit_main" class="btn btn-primary">إضافة</button>
+        </div>
+    </form>
+
+    <form method="post" class="row g-3 mb-4">
+        {% csrf_token %}
+        <div class="col-12">
+            <h3>بند فرعي</h3>
+            {{ sub_form.name|add_class:"form-control" }}
+        </div>
+        <div class="col-12 text-end">
+            <button type="submit" name="submit_sub" class="btn btn-primary">إضافة</button>
+        </div>
+    </form>
+
+    <form method="post" class="row g-3 mb-4">
+        {% csrf_token %}
+        <div class="col-12">
+            <h3>الجهاز</h3>
+            {{ dev_form.name|add_class:"form-control" }}
+        </div>
+        <div class="col-12 text-end">
+            <button type="submit" name="submit_dev" class="btn btn-primary">إضافة</button>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            width: '100%',
+            allowClear: true
+        });
+    });
+</script>
+{% endblock %}

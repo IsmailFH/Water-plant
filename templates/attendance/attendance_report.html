@@ -1,0 +1,95 @@
+{% extends 'reports/base.html' %}
+{% block title %}تقرير حضور الموظف{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h1 class="text-center mb-4 text-primary">تقرير حضور الموظف</h1>
+
+
+    <form method="get" action="{% url 'attendance_report' %}" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label class="form-label">الموظف:</label>
+            <select name="employee" class="form-control" required>
+                <option value="">-- اختر موظف --</option>
+                {% for emp in employees %}
+                    <option value="{{ emp.id }}" {% if emp.id|stringformat:"s" == request.GET.employee %}selected{% endif %}>{{ emp.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">من تاريخ:</label>
+            <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">إلى تاريخ:</label>
+            <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="form-control">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">بحث</button>
+        </div>
+    </form>
+
+
+    {% if selected_employee %}
+        <h5 class="mb-3 text-success">عرض النتائج لـ: {{ selected_employee.name }}</h5>
+        <p class="text-muted">إجمالي دقائق التأخير خلال الفترة: <strong class="text-danger">{{ total_delay }}</strong> دقيقة</p>
+        <p class="text-muted">إجمالي دقائق الانصراف المبكر خلال الفترة: <strong class="text-danger">{{ total_early_leave }}</strong> دقيقة</p>
+
+        <div class="table-responsive" id="report-content">
+            <table class="table table-bordered table-hover text-center align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>وقت الحضور</th>
+                        <th>وقت الانصراف</th>
+                        <th>دقائق التأخير</th>
+                        <th>دقائق الانصراف المبكر</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for att in attendance_data %}
+                    <tr>
+                        <td>{{ att.date }}</td>
+                        <td>{{ att.check_in|default:"--" }}</td>
+                        <td>{{ att.check_out|default:"--" }}</td>
+                        <td class="{% if att.delay > 0 %}text-danger{% else %}text-success{% endif %}">{{ att.delay }}</td>
+                        <td class="{% if att.early_leave > 0 %}text-danger{% else %}text-success{% endif %}">{{ att.early_leave }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">لا يوجد بيانات حضور ضمن هذه الفترة</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+        <div class="text-end mt-4">
+        <a href="{% url 'workers_delays' %}" class="btn btn-success px-4 py-2">
+            رجوع للتقرير الاجمالي
+        </a>
+    </div>
+    <div class="col-md-12 text-end mt-3">
+        <button onclick="printReport()" class="btn btn-primary px-4">طباعة</button>
+    </div>
+</div>
+
+<script>
+    function printReport() {
+        var printContent = document.getElementById('report-content').outerHTML;
+        var printWindow = window.open('', '', 'height=600,width=800');
+
+        printWindow.document.write('<html><head><title>طباعة التقرير</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; direction: rtl; }');
+        printWindow.document.write('.table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }');
+        printWindow.document.write('.table th, .table td { padding: 10px; text-align: center; border: 1px solid #ddd; }');
+        printWindow.document.write('.list-group { margin-bottom: 20px; }');
+        printWindow.document.write('.list-group-item { padding: 10px; border: 1px solid #ddd; }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(printContent);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+</script>
+{% endblock %}

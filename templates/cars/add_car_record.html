@@ -1,0 +1,98 @@
+{% extends 'reports/base.html' %}
+{% load form_filters %}
+{% block title %}إضافة تقرير السيارات{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">إضافة سجل تعبئة سيارات</h2>
+
+<form method="post" class="row g-3">
+    {% csrf_token %}
+
+    <div class="col-md-6">
+        {{ form.day.label_tag }}
+        {{ form.day }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.date.label_tag }}
+        {{ form.date }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.name.label_tag }}
+        {{ form.name }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.assistant.label_tag }}
+        {{ form.assistant|add_class:"form-control select2" }}
+    </div>
+
+
+    <div class="col-md-6">
+        {{ form.car_count.label_tag }}
+        {{ form.car_count }}
+    </div>
+
+    <div class="col-md-6">
+        {{ form.documented_count.label_tag }}
+        {{ form.documented_count }}
+    </div>
+
+    <div class="col-md-12">
+        {{ form.documented_for.label_tag }}
+        {{ form.documented_for|add_class:"form-control select2" }}
+    </div>
+    <div class="col-md-12">
+        {{ form.notes.label_tag }}
+        {{ form.notes|add_class:"form-control" }}
+    </div>
+
+
+    <div class="col-12 text-end">
+        <button type="submit" class="btn btn-success">حفظ السجل</button>
+        <a href="{% url 'car_records_list' %}" class="btn btn-secondary">عرض السجلات</a>
+    </div>
+</form>
+
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            width: '100%',
+            allowClear: true
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.getElementById('id_date');
+        const dayInput = document.getElementById('id_day');
+
+        function updateDayFromDate() {
+            const dateValue = new Date(dateInput.value);
+            if (!isNaN(dateValue)) {
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const arabicDays = {
+                    'Sunday': 'الأحد',
+                    'Monday': 'الاثنين',
+                    'Tuesday': 'الثلاثاء',
+                    'Wednesday': 'الأربعاء',
+                    'Thursday': 'الخميس',
+                    'Friday': 'الجمعة',
+                    'Saturday': 'السبت'
+                };
+                const engDay = days[dateValue.getDay()];
+                dayInput.value = arabicDays[engDay];
+            }
+        }
+
+        // when date changing
+        dateInput.addEventListener('change', updateDayFromDate);
+
+        // first open for page
+        updateDayFromDate();
+    });
+</script>
+{% endblock %}

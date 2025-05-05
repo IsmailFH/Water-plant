@@ -1,0 +1,65 @@
+{% extends 'reports/base.html' %}
+{% block title %}التقرير المالي{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">التقرير المالي</h2>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">من تاريخ:</label>
+            <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">إلى تاريخ:</label>
+            <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">نوع التقرير:</label>
+            <select name="report_type" class="form-select">
+                <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>يومي</option>
+                <option value="monthly" {% if report_type == 'monthly' %}selected{% endif %}>شهري</option>
+                <option value="yearly" {% if report_type == 'yearly' %}selected{% endif %}>سنوي</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">عرض التقرير</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+<table class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>الفترة</th>
+            <th>المحروقات</th>
+            <th>العمال</th>
+            <th>الصيانة</th>
+            <th>المصروفات</th>
+            <th>الإجمالي</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in merged_data %}
+        <tr>
+            <td>{{ data.period }}</td>
+            <td>{{ data.fuel_total }}</td>
+            <td>{{ data.worker_total }}</td>
+            <td>{{ data.maintenance_total }}</td>
+            <td>{{ data.expenses_total }}</td>
+            <td>{{ data.total }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td><strong>الإجمالي الكلي</strong></td>
+            <td><strong>{{ total_fuel }}</strong></td>
+            <td><strong>{{ total_worker }}</strong></td>
+            <td><strong>{{ total_maintenance }}</strong></td>
+            <td><strong>{{ total_expenses }}</strong></td>
+            <td><strong>{{ total_all }}</strong></td>
+        </tr>
+    </tbody>
+</table>
+
+    </div>
+</div>
+{% endblock %}

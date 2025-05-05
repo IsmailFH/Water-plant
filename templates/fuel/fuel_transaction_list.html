@@ -1,0 +1,208 @@
+{% extends 'reports/base.html' %}
+{%load static%}
+{% block title %}تقرير المحروقات{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h1 class="text-center mb-4 text-primary">تقرير المحروقات</h1>
+
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">من تاريخ:</label>
+        <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">إلى تاريخ:</label>
+        <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">نوع المحروقات:</label>
+        <select name="fuel_type" class="form-select">
+            <option value="">الكل</option>
+            <option value="Solar" {% if request.GET.fuel_type == "Solar" %}selected{% endif %}>سولار</option>
+            <option value="gasoline" {% if request.GET.fuel_type == "gasoline" %}selected{% endif %}>بنزين</option>
+            <option value="oil" {% if request.GET.fuel_type == "oil" %}selected{% endif %}>زيت</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">نوع العملية:</label>
+        <select name="transaction_type" class="form-select">
+            <option value="">الكل</option>
+            <option value="in" {% if request.GET.transaction_type == "in" %}selected{% endif %}>وارد</option>
+            <option value="out" {% if request.GET.transaction_type == "out" %}selected{% endif %}>صادر</option>
+        </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">بحث</button>
+    </div>
+</form>
+    <div class="table-responsive" id="report-content">
+        <table class="table table-bordered table-hover text-center align-middle shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>اليوم</th>
+                    <th>التاريخ</th>
+                    <th>الوارد</th>
+                    <th>الصادر</th>
+                    <th>الرصيد</th>
+                    <th>النوع</th>
+                    <th>سعر اللتر</th>
+                    <th>التكلفة</th>
+                    <th>عدد ساعات التشغيل</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr class="{% if t.fuel_type == 'Solar' %}table-warning{% elif t.fuel_type == 'gasoline' %}table-info{% else %}table-success{% endif %}">
+                    <td>{{ t.day }}</td>
+                    <td>{{ t.date }}</td>
+                    <td>{% if t.type == "in" %}{{ t.quantity }}{% else %}-{% endif %}</td>
+                    <td>{% if t.type == "out" %}{{ t.quantity }}{% else %}-{% endif %}</td>
+                    <td>{{ t.current_balance }}</td>
+                    <td>{{ t.fuel_type }}</td>
+                    <td>
+                        {% if t.type == "in" %}
+                            {{ t.price_per_liter|floatformat:2 }} ₪
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if t.type == "in" %}
+                            {{ t.total_cost|floatformat:2 }} ₪
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                    {% if t.run_time_hours %}
+                         {{ t.run_time_hours }}
+                      {% else %}
+                         -
+                       {% endif %}
+                        </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">لا توجد بيانات لعرضها</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    
+<div class="row my-4" id="total">
+    <div class="col-md-6">
+        <div class="alert alert-info text-center">
+            <h5>إجمالي الصادر: {{ total_out_quantity }}</h5>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="alert alert-success text-center">
+            <h5>إجمالي الوارد: {{ total_in_quantity }}</h5>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="alert alert-success text-center">
+            <h5>إجمالي التكلفة: {{ total_in_cost }}</h5>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="alert alert-success text-center">
+            <h5>إجمالي ساعات التشغيل: {{ total_run_time_display }}</h5>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    <!-- ✅ ملخص التكلفة والرّصيد ضمن حاوية متوسّطة -->
+<div class="container mt-4">
+    <div class="mx-auto w-50">
+
+        <!-- ✅ ملخص التكلفة -->
+        <div id="summary">
+            <h5 class="text-end">التكلفة الإجمالية:</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>سولار:</strong>
+                    <span>{{ total_costs.Solar|floatformat:2 }} ₪</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>بنزين:</strong>
+                    <span>{{ total_costs.gasoline|floatformat:2 }} ₪</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>زيت:</strong>
+                    <span>{{ total_costs.oil|floatformat:2 }} ₪</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ✅ ملخص الرصيد -->
+        <div class="mt-4" id="balance">
+            <h5 class="text-end">الرصيد المتبقي:</h5>
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>سولار:</strong>
+                    <span>{{ final_balance.Solar|floatformat:2 }} لتر</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>بنزين:</strong>
+                    <span>{{ final_balance.gasoline|floatformat:2 }} لتر</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>زيت:</strong>
+                    <span>{{ final_balance.oil|floatformat:2 }} لتر</span>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+    <div class="text-end mt-4">
+        <a href="{% url 'add_fuel_transaction' %}" class="btn btn-success px-4 py-2">
+            إضافة عملية جديدة
+        </a>
+        <button onclick="printReport()" class="btn btn-primary px-4 py-2">طباعة</button>
+
+    </div>
+
+
+</div>
+
+<script>
+    function printReport() {
+        var printContent = document.getElementById('report-content').outerHTML; // تحديد الجزء الذي سيتم طباعته
+        var printtTotal = document.getElementById('total').outerHTML; // تحديد ملخص التكلفة والرصيد
+        var printSummary = document.getElementById('summary').outerHTML; // تحديد ملخص التكلفة والرصيد
+        var printBalance = document.getElementById('balance').outerHTML; // تحديد ملخص التكلفة والرصيد
+        var printWindow = window.open('', '', 'height=600,width=800');
+
+        printWindow.document.write('<html><head><title>طباعة التقرير</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('body { font-family: Arial, sans-serif; direction: rtl; }');
+        printWindow.document.write('.table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }');
+        printWindow.document.write('.table th, .table td { padding: 10px; text-align: center; border: 1px solid #ddd; }');
+        printWindow.document.write('.list-group { margin-bottom: 20px; }');
+        printWindow.document.write('.list-group-item { padding: 10px; border: 1px solid #ddd; }');
+        printWindow.document.write('</style></head><body>');
+        printWindow.document.write(printContent); // إضافة محتويات الجدول
+        printWindow.document.write(printtTotal);
+        printWindow.document.write(printSummary);
+        printWindow.document.write(printBalance);
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print(); // طباعة التقرير
+    }
+</script>
+
+{% endblock %}

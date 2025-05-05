@@ -1,0 +1,39 @@
+{% extends 'reports/base.html' %}
+{% load form_filters %}
+{% block title %}إضافة عامل جديد{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">إضافة عامل جديد</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success text-center">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="row g-3">
+        {% csrf_token %}
+
+        {% for field in worker_form %}
+            <div class="col-md-6">
+                {{ field.label_tag }}
+                {{ field|add_class:"form-control" }}
+                {% if field.errors %}
+                    <div class="text-danger small">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle me-1"></i> إضافة
+            </button>
+            <a href="{% url 'workers_list' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left-circle me-1"></i> الرجوع إلى القائمة
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'reports/base.html' %}
+{% block title %}سجلات المصاريف{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4"> سجلات المصاريف</h2>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">من تاريخ:</label>
+            <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">إلى تاريخ:</label>
+            <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+        </div>
+
+<div class="col-md-3">
+    <label class="form-label">مكان الصرف:</label>
+    <select name="place" class="form-select">
+        <option value="">الكل</option>
+        {% for place in places %}
+            <option value="{{ place.id }}" {% if loc.id|stringformat:"s" == place_form %}selected{% endif %}>
+                {{ place.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+
+<div class="col-md-3">
+    <label class="form-label">نوع المصروف:</label>
+    <select name="expenses_type" class="form-select">
+        <option value="">الكل</option>
+        {% for type in expenses_types %}
+            <option value="{{ type.id }}" {% if item.id|stringformat:"s" == expenses_type_form %}selected{% endif %}>
+                {{ type.name }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">بحث</button>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>اليوم</th>
+                    <th>التاريخ</th>
+                    <th>مكان الصرف</th>
+                    <th>نوع الصرف</th>
+                    <th>المبلغ</th>
+                    <th>الملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record.day }}</td>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.palce }}</td>
+                        <td>{{ record.expenses_type }}</td>
+                        <td>{{ record.amount }}</td>
+                        <td>{{ record.notes }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="8">لا توجد سجلات لعرضها</td></tr>
+                {% endfor %}
+                            <tr class="table-secondary fw-bold">
+        <td colspan="5" class="text-end">الإجمالي:</td>
+        <td>{{ total_amount }}</td>
+    </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <a href="{% url 'add_expenses' %}" class="btn btn-success">إضافة سجل صرف جديد</a>
+        <a href="{% url 'add_expenses_options' %}" class="btn btn-success">إضافة بند صرف جديد</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+
+{% extends 'reports/base.html' %}
+{% block title %}موظفو المحطة{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h1 class="text-center mb-4 text-primary">موظفو المحطة</h1>
+    <form method="get" action="{% url 'workers_list' %}" class="row g-3 mb-4">
+        <div class="col-md-5">
+            <label class="form-label">من تاريخ:</label>
+            <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control">
+        </div>
+        <div class="col-md-5">
+            <label class="form-label">إلى تاريخ:</label>
+            <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="form-control">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">بحث</button>
+        </div>
+    </form>
+
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>الاسم</th>
+                    <th>رقم الهوية</th>
+                    <th>طبيعة العمل</th>
+                    <th>بداية العمل</th>
+                    <th>الراتب</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for worker in workers %}
+                <tr>
+                    <td>{{ worker.name }}</td>
+                    <td>{{ worker.id_number }}</td>
+                    <td>{{ worker.job }}</td>
+                    <td>{{ worker.start_date }}</td>
+                    <td>{{ worker.salary }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">لا يوجد موظفين لعرضهم</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-end mt-3">
+        <a href="{% url 'add_worker' %}" class="btn btn-success">إضافة موظف جديد</a>
+    </div>
+</div>
+{% endblock %}
