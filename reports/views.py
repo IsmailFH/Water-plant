@@ -7,6 +7,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Sum
 from django.db.models.functions import TruncDate, TruncMonth, TruncYear, TruncDay
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+from .models import CarRecords
 
 from .models import (
     Worker, Attendance, Driver, FuelTransaction, Institution, CarRecords,
@@ -145,6 +148,34 @@ def add_worker(request):
         worker_form = AddWorkerForm()
 
     return render(request, 'workers/add_worker.html', {'worker_form': worker_form})
+
+
+
+@login_required
+@manager_only
+def edit_worker_record(request, pk):
+    worker_record = get_object_or_404(Worker, pk=pk)
+
+    if request.method == 'POST':
+        form = AddWorkerForm(request.POST, instance=worker_record)
+        if form.is_valid():
+            form.save()
+            return redirect('workers_list')
+        else:
+            print(form.errors)
+    else:
+        form = AddWorkerForm(instance=worker_record)
+
+    return render(request, 'workers/edit_worker_record.html', {'form': form})
+
+
+@require_POST
+def delete_worker_record(request, record_id):
+    record = get_object_or_404(Worker, id=record_id)
+    record.delete()
+    return redirect('workers_list')
+
+
 
 
 @login_required
@@ -383,6 +414,7 @@ def fuel_transaction_list(request):
             run_time_hours = "لا يوجد"
 
         processed.append({
+            'id': t.id,
             'date': t.date.strftime('%d-%m-%Y'),
             'type': t.type,
             'quantity': t.quantity,
@@ -406,6 +438,34 @@ def fuel_transaction_list(request):
     }
 
     return render(request, 'fuel/fuel_transaction_list.html', context)
+
+
+@login_required
+@manager_only
+def edit_fuel_record(request, pk):
+    fuel_record = get_object_or_404(FuelTransaction, pk=pk)
+
+    if request.method == 'POST':
+        form = FuelTransactionForm(request.POST, instance=fuel_record)
+        if form.is_valid():
+            form.save()
+            return redirect('fuel_transaction_list')
+        else:
+            print(form.errors)
+    else:
+        form = FuelTransactionForm(instance=fuel_record)
+
+    return render(request, 'fuel/edit_fuel_transaction.html', {'form': form})
+
+
+@require_POST
+def delete_fuel_record(request, record_id):
+    record = get_object_or_404(FuelTransaction, id=record_id)
+    record.delete()
+    return redirect('fuel_transaction_list')
+
+
+
 
 @login_required
 @manager_only
@@ -501,15 +561,12 @@ def edit_car_record(request, pk):
 
     return render(request, 'cars/edit_car_record.html', {'form': form})
 
-from django.shortcuts import get_object_or_404, redirect
-from django.views.decorators.http import require_POST
-from .models import CarRecords  # تأكد أنك مستورد الموديل الصح
 
 @require_POST
 def delete_car_record(request, record_id):
     record = get_object_or_404(CarRecords, id=record_id)
     record.delete()
-    return redirect('car_records_list')  # غيرها إذا عندك اسم مختلف
+    return redirect('car_records_list')
 
 
 @login_required
@@ -641,6 +698,33 @@ def add_options(request):
     }
     return render(request, 'maintenance/add_options.html', context)
 
+
+
+@login_required
+@manager_only
+def edit_maintenance_record(request, pk):
+    maintenance_record = get_object_or_404(Maintenance, pk=pk)
+
+    if request.method == 'POST':
+        form = MaintenanceForm(request.POST, instance=maintenance_record)
+        if form.is_valid():
+            form.save()
+            return redirect('maintenance_list')
+        else:
+            print(form.errors)
+    else:
+        form = MaintenanceForm(instance=maintenance_record)
+
+    return render(request, 'maintenance/edit_maintenance.html', {'form': form})
+
+
+@require_POST
+def delete_maintenance_record(request, record_id):
+    record = get_object_or_404(Maintenance, id=record_id)
+    record.delete()
+    return redirect('maintenance_list')
+
+
 @login_required
 @manager_only
 def add_expenses(request):
@@ -709,6 +793,35 @@ def add_expenses_options(request):
 
     }
     return render(request, 'expenses/add_expenses_options.html', context)
+
+
+
+
+@login_required
+@manager_only
+def edit_expenses_record(request, pk):
+    expenses_record = get_object_or_404(Expenses, pk=pk)
+
+    if request.method == 'POST':
+        form = ExpensesFrom(request.POST, instance=expenses_record)
+        if form.is_valid():
+            form.save()
+            return redirect('expenses_list')
+        else:
+            print(form.errors)
+    else:
+        form = ExpensesFrom(instance=expenses_record)
+
+    return render(request, 'expenses/edit_expenses.html', {'form': form})
+
+
+@require_POST
+def delete_expenses_record(request, record_id):
+    record = get_object_or_404(Expenses, id=record_id)
+    record.delete()
+    return redirect('expenses_list')
+
+
 
 
 def financial_report(request):

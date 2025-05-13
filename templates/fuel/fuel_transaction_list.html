@@ -48,6 +48,8 @@
                     <th>سعر اللتر</th>
                     <th>التكلفة</th>
                     <th>عدد ساعات التشغيل</th>
+                    <th>تعديل</th>
+                    <th>حذف</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,6 +82,17 @@
                          -
                        {% endif %}
                         </td>
+
+                            <td>
+            <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-warning">تعديل</a>
+        </td>
+        <td>
+    <form action="{% url 'delete_fuel_record' t.id %}" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+    </form>
+        </td>
+
                 </tr>
                 {% empty %}
                 <tr>

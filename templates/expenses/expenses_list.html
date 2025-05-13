@@ -55,6 +55,8 @@
                     <th>نوع الصرف</th>
                     <th>المبلغ</th>
                     <th>الملاحظات</th>
+                    <th>تعديل</th>
+                    <th>حذف</th>
                 </tr>
             </thead>
             <tbody>
@@ -66,12 +68,21 @@
                         <td>{{ record.expenses_type }}</td>
                         <td>{{ record.amount }}</td>
                         <td>{{ record.notes }}</td>
+                                <td>
+            <a href="{% url 'edit_expenses_record' record.id %}" class="btn btn-sm btn-warning">تعديل</a>
+        </td>
+        <td>
+    <form action="{% url 'delete_expenses_record' record.id %}" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+    </form>
+        </td>
                     </tr>
                 {% empty %}
                     <tr><td colspan="8">لا توجد سجلات لعرضها</td></tr>
                 {% endfor %}
                             <tr class="table-secondary fw-bold">
-        <td colspan="5" class="text-end">الإجمالي:</td>
+        <td colspan="7" class="text-end">الإجمالي:</td>
         <td>{{ total_amount }}</td>
     </tr>
             </tbody>
