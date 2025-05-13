@@ -482,6 +482,27 @@ def car_records_list(request):
     return render(request, 'cars/car_records_list.html', context)
 
 
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import CarRecords
+from .forms import CarRecordsForm
+
+def edit_car_record(request, pk):
+    car_record = get_object_or_404(CarRecords, pk=pk)
+
+    if request.method == 'POST':
+        form = CarRecordsForm(request.POST, instance=car_record)
+        if form.is_valid():
+            form.save()
+            return redirect('car_records_list')
+        else:
+            print(form.errors)
+    else:
+        form = CarRecordsForm(instance=car_record)
+
+    return render(request, 'cars/edit_car_record.html', {'form': form})
+
+
+
 @login_required
 @manager_only
 def add_driver(request):

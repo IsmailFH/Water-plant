@@ -86,12 +86,12 @@ class CarRecords(models.Model):
     name = models.ForeignKey(Driver, on_delete=models.CASCADE)
     assistant = models.CharField(max_length=255)
     car_count = models.PositiveIntegerField()
-    documented_count = models.PositiveIntegerField()
-    documented_for = models.CharField(max_length=100)
+    documented_count = models.PositiveIntegerField(null=True, blank=True)
+    documented_for = models.CharField(max_length=100,null=True, blank=True)
     notes = models.CharField(max_length=300,null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.name} - {self.date}"
+    # def __str__(self):
+    #     return f"{self.name} - {self.date}"
 
 class MaintenanceLocation(AbstractNameModel):
     pass

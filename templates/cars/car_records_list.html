@@ -68,25 +68,27 @@
                     <th>عدد الموثقة</th>
                     <th>تم التوثيق لـ</th>
                     <th>ملاحظات</th>
+                    <th>تعديل</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for record in records %}
+           <tbody>
+    {% for record in records %}
+    <tr>
+        <td>{{ record.day}}</td>
+        <td>{{ record.date }}</td>
+        <td>{{ record.name.name }}</td>
+        <td>{{ record.assistant }}</td>
+        <td>{{ record.car_count }}</td>
+        <td>{{ record.documented_count }}</td>
+        <td>{{ record.documented_for }}</td>
+        <td>{{ record.notes }}</td>
+        <td>
+            <a href="{% url 'edit_car_record' record.id %}" class="btn btn-sm btn-warning">تعديل</a>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
 
-                <tr>
-                    <td>{{ record.day}}</td>
-                    <td>{{ record.date }}</td>
-                    <td>{{ record.name.name }}</td>
-                    <td>{{ record.assistant }}</td>
-                    <td>{{ record.car_count }}</td>
-                    <td>{{ record.documented_count }}</td>
-                    <td>{{ record.documented_for }}</td>
-                    <td>{{ record.notes }}</td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="7">لا يوجد سجلات لعرضها</td></tr>
-                {% endfor %}
-            </tbody>
         </table>
     </div>
 
