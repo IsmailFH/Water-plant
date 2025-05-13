@@ -69,6 +69,7 @@
                     <th>تم التوثيق لـ</th>
                     <th>ملاحظات</th>
                     <th>تعديل</th>
+                    <th>حذف</th>
                 </tr>
             </thead>
            <tbody>
@@ -84,6 +85,12 @@
         <td>{{ record.notes }}</td>
         <td>
             <a href="{% url 'edit_car_record' record.id %}" class="btn btn-sm btn-warning">تعديل</a>
+        </td>
+        <td>
+    <form action="{% url 'delete_car_record' record.id %}" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+    </form>
         </td>
     </tr>
     {% endfor %}

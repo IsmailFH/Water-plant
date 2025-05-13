@@ -501,6 +501,15 @@ def edit_car_record(request, pk):
 
     return render(request, 'cars/edit_car_record.html', {'form': form})
 
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+from .models import CarRecords  # تأكد أنك مستورد الموديل الصح
+
+@require_POST
+def delete_car_record(request, record_id):
+    record = get_object_or_404(CarRecords, id=record_id)
+    record.delete()
+    return redirect('car_records_list')  # غيرها إذا عندك اسم مختلف
 
 
 @login_required

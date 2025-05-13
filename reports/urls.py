@@ -25,6 +25,8 @@ urlpatterns = [
     path('add_car_record/', views.add_car_record, name='add_car_record'),
     path('car_records_list/', views.car_records_list, name='car_records_list'),
     path('edit/<int:pk>/', views.edit_car_record, name='edit_car_record'),
+    path('car-records/delete/<int:record_id>/', views.delete_car_record, name='delete_car_record'),
+
 
     path('add_driver/', views.add_driver, name='add_driver'),
     path('drivers_list/', views.drivers_list, name='drivers_list'),
