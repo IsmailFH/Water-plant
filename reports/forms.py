@@ -105,8 +105,11 @@ class CarRecordsForm(forms.ModelForm):
     def clean_assistant(self):
         data = self.cleaned_data['assistant']
         return ', '.join(data)
+
     def clean_documented_for(self):
-        data = self.cleaned_data['documented_for']
+        data = self.cleaned_data.get('documented_for', [])
+        if not data:
+            return 'لا يوجد'
         return ', '.join(data)
 
     assistant = forms.MultipleChoiceField(
@@ -116,6 +119,7 @@ class CarRecordsForm(forms.ModelForm):
     )
     documented_for = forms.MultipleChoiceField(
         choices=[],
+        required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         label='تم التوثيق لـ:'
     )
