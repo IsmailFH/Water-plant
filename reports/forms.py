@@ -119,8 +119,19 @@ class CarRecordsForm(forms.ModelForm):
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         label='تم التوثيق لـ:'
     )
-    car_count = forms.ChoiceField(choices=COUNT_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
-    documented_count = forms.ChoiceField(choices=COUNT_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+
+    car_count = forms.ChoiceField(
+        label='عدد السيارات',
+        choices=COUNT_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    documented_count = forms.ChoiceField(
+        label='عدد السيارات الموثقة',
+        choices=COUNT_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = CarRecords
         fields = '__all__'
