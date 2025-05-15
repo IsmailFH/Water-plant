@@ -482,6 +482,12 @@ def add_car_record(request):
         form = CarRecordsForm()
     return render(request, 'cars/add_car_record.html', {'form': form})
 
+from django.shortcuts import render
+from django.db.models import Sum
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth.decorators import login_required
+from .models import CarRecords, Driver, Worker, Institution
+from .decorators import manager_only  # حسب مشروعك
 
 @login_required
 @manager_only
@@ -506,22 +512,31 @@ def car_records_list(request):
         assistant_name = Worker.objects.filter(id=selected_assistant_id).values_list("name", flat=True).first()
         if assistant_name:
             records = records.filter(assistant__icontains=assistant_name)
-
     if selected_institutions:
         records = records.filter(name__institution__in=selected_institutions)
-
     if selected_documented_for:
         records = records.filter(documented_for__icontains=selected_documented_for)
-
     if selected_notes:
         records = records.filter(notes__icontains=selected_notes)
 
+    records = records.order_by('-date')
+    
     total_car_count = records.aggregate(total=Sum('car_count'))['total'] or 0
     total_documented_count = records.aggregate(total=Sum('documented_count'))['total'] or 0
 
+    # ✨ Pagination
+    paginator = Paginator(records, 20)
+    page = request.GET.get('page')
+    try:
+        records = paginator.page(page)
+    except PageNotAnInteger:
+        records = paginator.page(1)
+    except EmptyPage:
+        records = paginator.page(paginator.num_pages)
+
     drivers = Driver.objects.all()
     assistants = Worker.objects.all()
-    companies=Institution.objects.all()
+    companies = Institution.objects.all()
 
     context = {
         'records': records,
@@ -529,17 +544,17 @@ def car_records_list(request):
         'end_date': end_date,
         'drivers': drivers,
         'assistants': assistants,
+        'companies': companies,
         'selected_driver_id': selected_driver_id,
         'selected_assistant_id': selected_assistant_id,
         'selected_institutions': selected_institutions,
-        'companies':companies,
         'selected_documented_for': selected_documented_for,
         'selected_notes': selected_notes,
         'total_car_count': total_car_count,
         'total_documented_count': total_documented_count,
-
     }
     return render(request, 'cars/car_records_list.html', context)
+
 
 
 from django.shortcuts import render, get_object_or_404, redirect
