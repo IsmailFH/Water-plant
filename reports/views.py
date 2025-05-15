@@ -46,15 +46,15 @@ def redirect_after_login(request):
         return redirect('dashboard')
     else:
         return redirect('worker_dashboard')
-
+from django.db.models import Sum
 
 @login_required
 @manager_only
 def dashboard(request):
-    total_reports_cars = CarRecords.objects.count()
-    today = date.today()
-    total_reports_cars_for_today = CarRecords.objects.filter(date=today).count()
+    total_car_count = CarRecords.objects.aggregate(Sum('car_count'))['car_count__sum'] or 0
 
+    today = date.today()
+    total_car_count_today = CarRecords.objects.filter(date=today).aggregate(Sum('car_count'))['car_count__sum'] or 0
 
     fuel_types = ['Solar', 'gasoline', 'oil']
     fuel_in = {}
@@ -98,8 +98,8 @@ def dashboard(request):
 
 
     context = {
-        'total_reports_cars': total_reports_cars,
-        'total_reports_cars_for_today': total_reports_cars_for_today,
+        'total_reports_cars': total_car_count,
+        'total_reports_cars_for_today': total_car_count_today,
         'total_fuel_in': total_fuel_in,
 
         'total_Solar_in': fuel_in['Solar'],
