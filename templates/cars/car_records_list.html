@@ -51,10 +51,11 @@
     <input type="text" name="notes"  class="form-control" >
 </div>
 
+<div class="col-md-3 d-flex align-items-end gap-2">
+    <button type="submit" class="btn btn-primary w-50">بحث</button>
+    <a href="{% url 'car_records_list' %}" class="btn btn-secondary w-50">إفراغ الفلاتر</a>
+</div>
 
-    <div class="col-md-3 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">بحث</button>
-    </div>
 </form>
     <div class="table-responsive">
         <table class="table table-bordered table-hover text-center align-middle">
@@ -97,7 +98,6 @@
 </tbody>
 
         </table>
-        <!-- Pagination Controls -->
 <div class="d-flex justify-content-center mt-4">
     <nav aria-label="Page navigation">
         <ul class="pagination">

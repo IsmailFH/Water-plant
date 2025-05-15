@@ -31,9 +31,10 @@
             <option value="out" {% if request.GET.transaction_type == "out" %}selected{% endif %}>صادر</option>
         </select>
     </div>
-    <div class="col-md-3 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">بحث</button>
-    </div>
+<div class="col-md-3 d-flex align-items-end gap-2">
+    <button type="submit" class="btn btn-primary w-50">بحث</button>
+    <a href="{% url 'fuel_transaction_list' %}" class="btn btn-secondary w-50">إفراغ الفلاتر</a>
+</div>
 </form>
     <div class="table-responsive" id="report-content">
         <table class="table table-bordered table-hover text-center align-middle shadow-sm">

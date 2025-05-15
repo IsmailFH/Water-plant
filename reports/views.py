@@ -520,7 +520,7 @@ def car_records_list(request):
         records = records.filter(notes__icontains=selected_notes)
 
     records = records.order_by('-date')
-    
+
     total_car_count = records.aggregate(total=Sum('car_count'))['total'] or 0
     total_documented_count = records.aggregate(total=Sum('documented_count'))['total'] or 0
 
