@@ -35,6 +35,13 @@
     <button type="submit" class="btn btn-primary w-50">بحث</button>
     <a href="{% url 'fuel_transaction_list' %}" class="btn btn-secondary w-50">إفراغ الفلاتر</a>
 </div>
+        <div class="text-end mt-4">
+        <a href="{% url 'add_fuel_transaction' %}" class="btn btn-success px-4 py-2">
+            إضافة عملية جديدة
+        </a>
+        <button onclick="printReport()" class="btn btn-primary px-4 py-2">طباعة</button>
+
+    </div>
 </form>
     <div class="table-responsive" id="report-content">
         <table class="table table-bordered table-hover text-center align-middle shadow-sm">
@@ -182,13 +189,7 @@
     </div>
 </div>
 
-    <div class="text-end mt-4">
-        <a href="{% url 'add_fuel_transaction' %}" class="btn btn-success px-4 py-2">
-            إضافة عملية جديدة
-        </a>
-        <button onclick="printReport()" class="btn btn-primary px-4 py-2">طباعة</button>
 
-    </div>
 
 
 </div>

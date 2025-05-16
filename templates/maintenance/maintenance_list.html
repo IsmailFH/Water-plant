@@ -67,7 +67,13 @@
     <a href="{% url 'maintenance_list' %}" class="btn btn-secondary w-50">إفراغ الفلاتر</a>
 </div>
     </form>
+    <div class="text-end mt-3">
+        <a href="{% url 'add_maintenance' %}" class="btn btn-success">إضافة سجل صيانة جديد</a>
+  <a href="{% url 'add_options' %}" class="btn btn-success">إضافة بند صيانة جديد</a>
+    </div>
+        <div class="text-end mt-3">
 
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered table-hover text-center align-middle">
             <thead class="table-dark">
@@ -119,9 +125,6 @@
         </table>
     </div>
 
-    <div class="text-end mt-3">
-        <a href="{% url 'add_maintenance' %}" class="btn btn-success">إضافة سجل صيانة جديد</a>
-  <a href="{% url 'add_options' %}" class="btn btn-success">إضافة بند صيانة جديد</a>
-    </div>
+
 </div>
 {% endblock %}
