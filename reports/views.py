@@ -47,14 +47,22 @@ def redirect_after_login(request):
     else:
         return redirect('worker_dashboard')
 from django.db.models import Sum
-
+from datetime import datetime, time, timedelta
 @login_required
 @manager_only
 def dashboard(request):
     total_car_count = CarRecords.objects.aggregate(Sum('car_count'))['car_count__sum'] or 0
 
-    today = date.today()
-    total_car_count_today = CarRecords.objects.filter(date=today).aggregate(Sum('car_count'))['car_count__sum'] or 0
+    now = datetime.now()
+    if now.time() >= time(22, 0):
+        start = datetime.combine(now.date(), time(22, 0))
+    else:
+        start = datetime.combine(now.date() - timedelta(days=1), time(22, 0))
+
+    end = start + timedelta(days=1)
+
+    total_car_count_today = CarRecords.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('car_count'))[
+                                'car_count__sum'] or 0
 
     fuel_types = ['Solar', 'gasoline', 'oil']
     fuel_in = {}
