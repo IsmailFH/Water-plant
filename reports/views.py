@@ -439,11 +439,11 @@ def fuel_transaction_list(request):
     paginator = Paginator(transactions, 20)
     page = request.GET.get('page')
     try:
-        records = paginator.page(page)
+        processed = paginator.page(page)
     except PageNotAnInteger:
-        records = paginator.page(1)
+        processed = paginator.page(1)
     except EmptyPage:
-        records = paginator.page(paginator.num_pages)
+        processed = paginator.page(paginator.num_pages)
     context = {
         'transactions': processed,
         'total_in_quantity': total_in_quantity,
