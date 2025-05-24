@@ -116,7 +116,7 @@
         <ul class="pagination">
             {% if transactions.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ records.previous_page_number }}">السابق</a>
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ transactions.previous_page_number }}">السابق</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
@@ -125,7 +125,7 @@
             {% endif %}
 
             {% for num in transactions.paginator.page_range %}
-                {% if tr.number == num %}
+                {% if transactions.number == num %}
                     <li class="page-item active">
                         <span class="page-link">{{ num }}</span>
                     </li>
@@ -148,8 +148,6 @@
         </ul>
     </nav>
 </div>
-
-
 
 
     </div>

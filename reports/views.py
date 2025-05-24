@@ -434,9 +434,8 @@ def fuel_transaction_list(request):
             'run_time_hours': run_time_hours,
 
         })
-
         # ✨ Pagination
-    paginator = Paginator(transactions, 20)
+    paginator = Paginator(processed, 2)
     page = request.GET.get('page')
     try:
         processed = paginator.page(page)
