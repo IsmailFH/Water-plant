@@ -373,7 +373,7 @@ def fuel_transaction_list(request):
     transaction_type_filter = request.GET.get('transaction_type')
     if transaction_type_filter:
         transactions = transactions.filter(type=transaction_type_filter)
-
+    transactions = transactions.order_by('-date')
     total_costs = {
         'Solar': FuelTransaction.objects.filter(fuel_type='Solar', type='in').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
         'gasoline': FuelTransaction.objects.filter(fuel_type='gasoline', type='in').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
@@ -435,6 +435,15 @@ def fuel_transaction_list(request):
 
         })
 
+        # ✨ Pagination
+    paginator = Paginator(transactions, 20)
+    page = request.GET.get('page')
+    try:
+        records = paginator.page(page)
+    except PageNotAnInteger:
+        records = paginator.page(1)
+    except EmptyPage:
+        records = paginator.page(paginator.num_pages)
     context = {
         'transactions': processed,
         'total_in_quantity': total_in_quantity,
