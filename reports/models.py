@@ -26,6 +26,7 @@ class Worker(AbstractNameModel):
     job = models.CharField(max_length=100 ,choices=x,default="موظف" , null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     salary = models.FloatField(null=True, blank=True,default=500)
+    worker_image = models.ImageField(upload_to='workers/', null=True, blank=True)
 
 
 class Attendance(models.Model):
@@ -48,12 +49,18 @@ class FuelTransaction(models.Model):
         ('in', 'وارد'),
         ('out', 'صادر'),
     ]
+    FUEL_TRANSACTION_TYPES = [
+        ('خاص', 'خاص'),
+        ('بلدية', 'بلدية'),
+        ('أخرى', 'أخرى'),
+    ]
 
-    fuel_type = models.CharField(max_length=10, choices=FUEL_TYPES, default='gasoline')
+
+    fuel_type = models.CharField(max_length=13, choices=FUEL_TYPES, default='gasoline')
     type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     date = models.DateField()
     quantity = models.FloatField()
-    price_per_liter = models.FloatField()
+    fuel_transaction_source = models.CharField(max_length=13, choices=FUEL_TRANSACTION_TYPES, default='خاص')
     total_cost = models.FloatField(blank=True, null=True)
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
@@ -67,10 +74,10 @@ class FuelTransaction(models.Model):
             return delta.total_seconds() / 3600
         return None
 
-    def save(self, *args, **kwargs):
-        if self.quantity is not None and self.price_per_liter is not None:
-            self.total_cost = self.quantity * self.price_per_liter
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.quantity is not None and self.price_per_liter is not None:
+    #         self.total_cost = self.quantity * self.price_per_liter
+    #     super().save(*args, **kwargs)
 
 
 class Driver(AbstractNameModel):
@@ -92,6 +99,19 @@ class CarRecords(models.Model):
 
     # def __str__(self):
     #     return f"{self.name} - {self.date}"
+
+
+
+class FountainRecords(models.Model):
+    day = models.CharField(max_length=20)
+    date = models.DateField()
+    car_count = models.PositiveIntegerField()
+    notes = models.CharField(max_length=300,null=True, blank=True,default="لا يوجد")
+
+    # def __str__(self):
+    #     return f"{self.name} - {self.date}"
+
+
 
 class MaintenanceLocation(AbstractNameModel):
     pass

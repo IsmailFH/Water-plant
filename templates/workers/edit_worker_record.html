@@ -1,9 +1,10 @@
 {% extends 'reports/base.html' %}
 {% load form_filters %}
-{% block title %}تحديث بيانات عامل {% endblock %}
+{% block title %}تحديث بيانات عامل{% endblock %}
+
 {% block content %}
 <div class="container my-5" dir="rtl">
-    <h2 class="text-center text-primary mb-4">تحديث بيانات عامل </h2>
+    <h2 class="text-center text-primary mb-4">تحديث بيانات عامل</h2>
 
     {% if messages %}
         {% for message in messages %}
@@ -13,9 +14,10 @@
         {% endfor %}
     {% endif %}
 
-    <form method="post" class="row g-3">
+    <form method="post" enctype="multipart/form-data" class="row g-3">
         {% csrf_token %}
 
+        <!-- عرض كل الحقول بما فيها الصورة -->
         {% for field in form %}
             <div class="col-md-6">
                 {{ field.label_tag }}
@@ -24,14 +26,28 @@
                     <div class="text-danger small">{{ field.errors }}</div>
                 {% endif %}
             </div>
+
         {% endfor %}
+
+
+{% if worker.worker_image %}
+    <div class="col-12">
+        <label class="form-label">الصورة الحالية:</label><br>
+        <img src="{{ worker.worker_image.url }}" alt="صورة العامل" class="img-thumbnail mb-2" style="max-width: 200px;"><br>
+        <a href="{% url 'delete_worker_image' worker.id %}" class="btn btn-danger btn-sm mt-2"
+           onclick="return confirm('هل أنت متأكد أنك تريد حذف الصورة؟')">حذف الصورة</a>
+    </div>
+{% endif %}
+
+
+
 
         <div class="col-12 text-end">
             <button type="submit" class="btn btn-success">
                 <i class="bi bi-check-circle me-1"></i> تحديث
             </button>
             <a href="{% url 'workers_list' %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left-circle me-1"></i>الغاء
+                <i class="bi bi-arrow-left-circle me-1"></i> الغاء
             </a>
         </div>
     </form>

@@ -9,7 +9,7 @@ from django.db.models import Sum
 from django.db.models.functions import TruncDate, TruncMonth, TruncYear, TruncDay
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
-from .models import CarRecords
+from .models import CarRecords, FountainRecords
 
 from .models import (
     Worker, Attendance, Driver, FuelTransaction, Institution, CarRecords,
@@ -19,7 +19,7 @@ from .models import (
 from .forms import (
     AddWorkerForm, FuelTransactionForm, DriverForm, CarRecordsForm, InstitutionForm,
     MaintenanceForm, ExpensesFrom, Expenses_typeForm, place_ExpensesForm,
-    MaintenanceLocationForm, MainItemForm, SubItemForm, DeviceForm
+    MaintenanceLocationForm, MainItemForm, SubItemForm, DeviceForm, FountainRecordsForm
 )
 from .decorators import manager_only, worker_only
 
@@ -52,17 +52,21 @@ from datetime import datetime, time, timedelta
 @manager_only
 def dashboard(request):
     total_car_count = CarRecords.objects.aggregate(Sum('car_count'))['car_count__sum'] or 0
-
+    total_fountain_count=FountainRecords.objects.aggregate(Sum('car_count'))['car_count__sum'] or 0
     now = datetime.now()
-    if now.time() >= time(22, 0):
-        start = datetime.combine(now.date(), time(22, 0))
+    cutoff_time = time(22, 0)  # 10 مساءً
+    today = date.today()
+    # تحديد تاريخ التقرير بناءً على الوقت الحالي
+    if now.time() >= cutoff_time:
+        report_date = now.date()  # اليوم الحالي
     else:
-        start = datetime.combine(now.date() - timedelta(days=1), time(22, 0))
+        report_date = now.date() - timedelta(days=1)  # اليوم السابق
 
-    end = start + timedelta(days=1)
-
-    total_car_count_today = CarRecords.objects.filter(date__gte=start, date__lt=end).aggregate(Sum('car_count'))[
+    # فلترة السجلات حسب حقل التاريخ فقط
+    total_car_count_today = CarRecords.objects.filter(date=today).aggregate(Sum('car_count'))[
                                 'car_count__sum'] or 0
+    total_fountain_today = FountainRecords.objects.filter(date=today).aggregate(Sum('car_count'))[
+                               'car_count__sum'] or 0
 
     fuel_types = ['Solar', 'gasoline', 'oil']
     fuel_in = {}
@@ -104,10 +108,14 @@ def dashboard(request):
     # dates = [safe_date_format(item['day_only']) for item in data]
     # car_counts = [item['total'] for item in data]
 
-
+    a=total_car_count+total_fountain_count
+    b=total_car_count_today+total_fountain_today
+    print("total_fountain_today: ",total_fountain_today)
+    print("total_car_count_today: ",total_car_count_today)
+    print("b: ",b)
     context = {
-        'total_reports_cars': total_car_count,
-        'total_reports_cars_for_today': total_car_count_today,
+        'total_reports_cars': a,
+        'total_reports_cars_for_today':b ,
         'total_fuel_in': total_fuel_in,
 
         'total_Solar_in': fuel_in['Solar'],
@@ -138,7 +146,7 @@ def workers_list(request):
 @manager_only
 def add_worker(request):
     if request.method == 'POST':
-        worker_form = AddWorkerForm(request.POST)
+        worker_form = AddWorkerForm(request.POST, request.FILES)
         if worker_form.is_valid():
             worker = worker_form.save(commit=False)
 
@@ -165,7 +173,7 @@ def edit_worker_record(request, pk):
     worker_record = get_object_or_404(Worker, pk=pk)
 
     if request.method == 'POST':
-        form = AddWorkerForm(request.POST, instance=worker_record)
+        form = AddWorkerForm(request.POST,request.FILES, instance=worker_record)
         if form.is_valid():
             form.save()
             return redirect('workers_list')
@@ -175,6 +183,18 @@ def edit_worker_record(request, pk):
         form = AddWorkerForm(instance=worker_record)
 
     return render(request, 'workers/edit_worker_record.html', {'form': form})
+
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+def delete_worker_image(request, worker_id):
+    worker = get_object_or_404(Worker, pk=worker_id)
+    if worker.worker_image:
+        worker.worker_image.delete()
+        worker.worker_image = None
+        worker.save()
+    return HttpResponseRedirect(reverse('edit_worker_record', args=[worker.id]))
+
 
 
 @require_POST
@@ -427,7 +447,7 @@ def fuel_transaction_list(request):
             'type': t.type,
             'quantity': t.quantity,
             'fuel_type': t.get_fuel_type_display(),
-            'price_per_liter': t.price_per_liter,
+            'fuel_transaction_source': t.fuel_transaction_source,
             'total_cost': t.total_cost,
             'day': arabic_days[t.date.strftime('%A')],
             'current_balance': current_balances[fuel],
@@ -598,6 +618,112 @@ def delete_car_record(request, record_id):
     record = get_object_or_404(CarRecords, id=record_id)
     record.delete()
     return redirect('car_records_list')
+
+
+
+@login_required
+@manager_only
+def add_fountain_record(request):
+    if request.method == 'POST':
+        form = FountainRecordsForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('fountain_records_list')
+        else:
+            print(form.errors)
+    else:
+        form = FountainRecordsForm()
+    return render(request, 'fountain/add_fountain_record.html', {'form': form})
+
+
+
+@login_required
+@manager_only
+def fountain_records_list(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    selected_day = request.GET.get('day')
+    selected_notes = request.GET.get('notes')
+
+    records = FountainRecords.objects.all()
+
+    if start_date:
+        records = records.filter(date__gte=start_date)
+    if end_date:
+        records = records.filter(date__lte=end_date)
+    if selected_day:
+        records = records.filter(day__icontains=selected_day)
+    if selected_notes:
+        records = records.filter(notes__icontains=selected_notes)
+
+    records = records.order_by('-date')
+
+    # total_liters = records.aggregate(total=Sum('Liters'))['total'] or 0
+    total_car_count = records.aggregate(total=Sum('car_count'))['total'] or 0
+
+    paginator = Paginator(records, 20)
+    page = request.GET.get('page')
+    try:
+        records = paginator.page(page)
+    except PageNotAnInteger:
+        records = paginator.page(1)
+    except EmptyPage:
+        records = paginator.page(paginator.num_pages)
+
+    context = {
+        'records': records,
+        'start_date': start_date,
+        'end_date': end_date,
+        'selected_day': selected_day,
+        'selected_notes': selected_notes,
+        # 'total_liters': total_liters,
+        'total_car_count': total_car_count,
+    }
+    return render(request, 'fountain/fountain_recordes_list.html', context)
+
+
+
+@login_required
+@manager_only
+def edit_fountain_record(request, pk):
+    record = get_object_or_404(FountainRecords, pk=pk)
+
+    if request.method == 'POST':
+        form = FountainRecordsForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            return redirect('fountain_records_list')
+        else:
+            print(form.errors)
+    else:
+        form = FountainRecordsForm(instance=record)
+
+    return render(request, 'fountain/edit_fountain_record.html', {'form': form})
+
+
+
+@require_POST
+@login_required
+@manager_only
+def delete_fountain_record(request, record_id):
+    record = get_object_or_404(FountainRecords, id=record_id)
+    record.delete()
+    return redirect('fountain_records_list')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @login_required

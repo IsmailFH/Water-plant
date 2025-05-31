@@ -34,10 +34,10 @@
         </div>
 
         <div class="col-md-4">
-            <label for="{{ form.price_per_liter.id_for_label }}" class="form-label">سعر اللتر</label>
-            {{ form.price_per_liter }}
-            {% if form.price_per_liter.errors %}
-                <div class="text-danger">{{ form.price_per_liter.errors }}</div>
+            <label for="{{ form.price_per_liter.id_for_label }}" class="form-label">مصدر السولار</label>
+            {{ form.fuel_transaction_source }}
+            {% if form.fuel_transaction_source.errors %}
+                <div class="text-danger">{{ form.fuel_transaction_source.errors }}</div>
             {% endif %}
         </div>
 

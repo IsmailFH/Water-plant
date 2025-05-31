@@ -12,6 +12,7 @@ urlpatterns = [
 
     path('edit-worker/<int:pk>/', views.edit_worker_record, name='edit_worker_record'),
     path('worker-records/delete/<int:record_id>/', views.delete_worker_record, name='delete_worker_record'),
+    path('delete-worker-image/<int:pk>/', views.delete_worker_image, name='delete_worker_image'),
 
 
     path('attendance_report/', views.attendance_report, name='attendance_report'),
@@ -32,6 +33,11 @@ urlpatterns = [
     path('car_records_list/', views.car_records_list, name='car_records_list'),
     path('edit/<int:pk>/', views.edit_car_record, name='edit_car_record'),
     path('car-records/delete/<int:record_id>/', views.delete_car_record, name='delete_car_record'),
+
+    path('add_fountain_record/', views.add_fountain_record, name='add_fountain_record'),
+    path('fountain_records_list/', views.fountain_records_list, name='fountain_records_list'),
+    path('f_edit/<int:pk>/', views.edit_fountain_record, name='edit_fountain_record'),
+    path('fountain-records/delete/<int:record_id>/', views.delete_fountain_record, name='delete_fountain_record'),
 
 
     path('add_driver/', views.add_driver, name='add_driver'),

@@ -19,6 +19,9 @@ from django.urls import path,include
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
 
+from django.conf.urls.static import static
+from django.conf import settings
+
 from reports import views
 
 
@@ -29,4 +32,9 @@ urlpatterns = [
     path('', include("reports.urls"), name='home'),
     path('admin/', admin.site.urls),
     path('reports/', include("reports.urls"))
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

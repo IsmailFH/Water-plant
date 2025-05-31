@@ -53,8 +53,7 @@
                     <th>الصادر</th>
                     <th>الرصيد</th>
                     <th>النوع</th>
-                    <th>سعر اللتر</th>
-                    <th>التكلفة</th>
+                    <th>مصدر المحروق</th>
                     <th>عدد ساعات التشغيل</th>
                     <th>تعديل</th>
                     <th>حذف</th>
@@ -69,20 +68,7 @@
                     <td>{% if t.type == "out" %}{{ t.quantity }}{% else %}-{% endif %}</td>
                     <td>{{ t.current_balance }}</td>
                     <td>{{ t.fuel_type }}</td>
-                    <td>
-                        {% if t.type == "in" %}
-                            {{ t.price_per_liter|floatformat:2 }} ₪
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if t.type == "in" %}
-                            {{ t.total_cost|floatformat:2 }} ₪
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
+                    <td>{{ t.fuel_transaction_source}}</td>
                     <td>
                     {% if t.run_time_hours %}
                          {{ t.run_time_hours }}
@@ -165,11 +151,6 @@
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="alert alert-success text-center">
-            <h5>إجمالي التكلفة: {{ total_in_cost }}</h5>
-        </div>
-    </div>
 
     <div class="col-md-6">
         <div class="alert alert-success text-center">

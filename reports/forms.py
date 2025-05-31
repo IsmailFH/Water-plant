@@ -8,8 +8,9 @@ from .models import Worker,FuelTransaction,Driver,CarRecords,Institution\
 class AddWorkerForm(forms.ModelForm):
     class Meta:
         model = Worker
-        fields = ["name","id_number", "job", "start_date","salary"]
-        fields = ["name","id_number", "job", "start_date","salary"]
+        fields = ["name","id_number", "job", "start_date","salary","worker_image"]
+        # fields = ["name","id_number", "job", "start_date","salary"]
+
         widgets = {
             'name': forms.TextInput(
                 attrs={
@@ -58,6 +59,9 @@ class AddWorkerForm(forms.ModelForm):
                     'placeholder': 'الراتب'
                 }
             ),
+            'worker_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),  # ✅ هنا نضيف الكلاس
+
+
 
         }
         labels = {
@@ -68,6 +72,7 @@ class AddWorkerForm(forms.ModelForm):
             'job':'طبيعة العمل',
             'start_date': 'بداية العمل',
             'salary': 'الراتب',
+            'worker_image': 'صورة الموظف',
         }
 
         # def __init__(self, *args, **kwargs):
@@ -78,13 +83,13 @@ class AddWorkerForm(forms.ModelForm):
 class FuelTransactionForm(forms.ModelForm):
     class Meta:
         model = FuelTransaction
-        fields = ['fuel_type', 'date', 'type', 'quantity', 'price_per_liter','start_time','end_time']
+        fields = ['fuel_type', 'date', 'type', 'quantity', 'fuel_transaction_source','start_time','end_time']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
             'fuel_type': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'كمية السولار'}),
-            'price_per_liter': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'سعر اللتر'}),
+            'fuel_transaction_source': forms.Select(attrs={'class': 'form-control', 'placeholder': 'مصدر السولار'}),
             'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
             'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
 
@@ -94,7 +99,7 @@ class FuelTransactionForm(forms.ModelForm):
             'date': 'التاريخ',
             'type': 'نوع العملية',
             'quantity': 'عدد اللترات',
-            'price_per_liter': 'سعر اللتر',
+            'fuel_transaction_source ': 'مصدر السولار',
             'start_time': 'ساة التشغيل',
             'end_time': ' ساعة الايقاف',
         }
@@ -167,6 +172,50 @@ class CarRecordsForm(forms.ModelForm):
 
         documented_for = Institution.objects.values_list('name', flat=True).distinct()
         self.fields['documented_for'].choices = [(a, a) for a in documented_for if a]
+
+
+from django import forms
+from .models import FountainRecords
+import datetime
+
+class FountainRecordsForm(forms.ModelForm):
+    COUNT_CHOICES = [(i, str(i)) for i in range(1, 51)]
+
+    car_count = forms.ChoiceField(
+        initial=2,
+        label='عدد السيارات',
+        choices=COUNT_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    # Liters = forms.IntegerField(
+    #     initial=0,
+    #     widget=forms.NumberInput(attrs={'class': 'form-control'})
+    # )
+    class Meta:
+        model = FountainRecords
+        fields = '__all__'
+        widgets = {
+            'day': forms.TextInput(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+
+            'notes': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'day': 'اليوم',
+            'date': 'التاريخ',
+            'Liters': 'عدد الليترات',
+            'car_count': 'عدد السيارات',
+            'notes': 'ملاحظات',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(FountainRecordsForm, self).__init__(*args, **kwargs)
+        today = datetime.date.today()
+        self.fields['date'].initial = today
+        self.fields['day'].initial = today.strftime('%A')
+
+
 
 
 class DriverForm(forms.ModelForm):

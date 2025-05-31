@@ -13,10 +13,12 @@
         {% endfor %}
     {% endif %}
 
-    <form method="post" class="row g-3">
-        {% csrf_token %}
+<form method="post" class="row g-3" enctype="multipart/form-data">
+    {% csrf_token %}
 
-        {% for field in worker_form %}
+    {# أولًا: عرض الحقول ما عدا الصورة داخل اللوب #}
+    {% for field in worker_form %}
+        {% if field.name != 'image' %}
             <div class="col-md-6">
                 {{ field.label_tag }}
                 {{ field|add_class:"form-control" }}
@@ -24,16 +26,18 @@
                     <div class="text-danger small">{{ field.errors }}</div>
                 {% endif %}
             </div>
-        {% endfor %}
+        {% endif %}
+    {% endfor %}
 
-        <div class="col-12 text-end">
-            <button type="submit" class="btn btn-success">
-                <i class="bi bi-check-circle me-1"></i> إضافة
-            </button>
-            <a href="{% url 'workers_list' %}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left-circle me-1"></i> الرجوع إلى القائمة
-            </a>
-        </div>
-    </form>
+    <div class="col-12 text-end">
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-circle me-1"></i> إضافة
+        </button>
+        <a href="{% url 'workers_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle me-1"></i> الرجوع إلى القائمة
+        </a>
+    </div>
+</form>
+
 </div>
 {% endblock %}

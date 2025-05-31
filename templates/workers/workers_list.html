@@ -32,6 +32,7 @@
                     <th>طبيعة العمل</th>
                     <th>بداية العمل</th>
                     <th>الراتب</th>
+                    <th>صورة الموظف</th>
                     <th>تعديل</th>
                     <th>حذف</th>
                 </tr>
@@ -44,6 +45,13 @@
                     <td>{{ worker.job }}</td>
                     <td>{{ worker.start_date }}</td>
                     <td>{{ worker.salary }}</td>
+                   <td>
+                     {% if worker.worker_image %}
+                       <img src="{{ worker.worker_image.url }}" alt="صورة الموظف" width="120" height="120" class="rounded" />
+                  {% else %}
+                      لا يوجد صورة
+                    {% endif %}
+                    </td>
                             <td>
             <a href="{% url 'edit_worker_record' worker.id %}" class="btn btn-sm btn-warning">تعديل</a>
         </td>

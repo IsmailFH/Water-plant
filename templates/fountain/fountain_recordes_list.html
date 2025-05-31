@@ -1,8 +1,8 @@
 {% extends 'reports/base.html' %}
-{% block title %} تقرير السيارات{% endblock %}
+{% block title %} تقرير ماء السبيل{% endblock %}
 {% block content %}
 <div class="container my-5" dir="rtl">
-    <h2 class="text-center text-primary mb-4"> تعبئة عدد السيارات</h2>
+    <h2 class="text-center text-primary mb-4"> تعبئة تقرير ماء السبيل</h2>
 <form method="get" class="row g-3 mb-4">
 
     <div class="col-md-3">
@@ -14,36 +14,6 @@
         <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
     </div>
 
-
-    <div class="col-md-3">
-        <label class="form-label">اسم السائق:</label>
-        <select name="driver" class="form-select">
-            <option value="">الكل</option>
-            {% for driver in drivers %}
-                <option value="{{ driver.id }}" {% if driver.id|stringformat:"s" == selected_driver_id %}selected{% endif %}>
-                    {{ driver.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-
-    <div class="col-md-3">
-        <label class="form-label">اسم المساعد:</label>
-        <select name="assistant" class="form-select">
-            <option value="">الكل</option>
-            {% for assistant in assistants %}
-                <option value="{{ assistant.id }}" {% if assistant.id|stringformat:"s" == selected_assistant_id %}selected{% endif %}>
-                    {{ assistant.name }}
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-
-<div class="col-md-3">
-    <label class="form-label">تم التوثيق لـ:</label>
-    <input type="text" name="documented_for" class="form-control">
-</div>
 
 
 <div class="col-md-3">
@@ -61,14 +31,7 @@
 
     </div>
     <div class="text-end mt-3">
-<a href="{% url 'add_car_record' %}" class="btn btn-success">إضافة سجل جديد</a>
-        <a href="{% url 'add_driver' %}" class="btn btn-success">إضافة سائق</a>
-        <a href="{% url 'add_institution' %}" class="btn btn-success">إضافة مؤسسة</a>
-        <br>
-        <br>
-
-
-        <a href="{% url 'add_fountain_record' %}" class="btn btn-success">إضافة تقرير ماء سبيل</a>
+    <a href="{% url 'add_fountain_record' %}" class="btn btn-success">إضافة سجل جديد</a>
     </div>
 </form>
     <div class="table-responsive">
@@ -77,11 +40,7 @@
                 <tr>
                     <th>اليوم</th>
                     <th>التاريخ</th>
-                    <th>اسم السائق</th>
-                    <th>اسم المساعد</th>
                     <th>عدد السيارات</th>
-                    <th>عدد الموثقة</th>
-                    <th>تم التوثيق لـ</th>
                     <th>ملاحظات</th>
                     <th>تعديل</th>
                     <th>حذف</th>
@@ -92,17 +51,13 @@
     <tr>
         <td>{{ record.day}}</td>
         <td>{{ record.date }}</td>
-        <td>{{ record.name.name }}</td>
-        <td>{{ record.assistant }}</td>
         <td>{{ record.car_count }}</td>
-        <td>{{ record.documented_count }}</td>
-        <td>{{ record.documented_for }}</td>
         <td>{{ record.notes }}</td>
         <td>
-            <a href="{% url 'edit_car_record' record.id %}" class="btn btn-sm btn-warning">تعديل</a>
+            <a href="{% url 'edit_fountain_record' record.id %}" class="btn btn-sm btn-warning">تعديل</a>
         </td>
         <td>
-    <form action="{% url 'delete_car_record' record.id %}" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟');">
+    <form action="{% url 'delete_fountain_record' record.id %}" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟');">
         {% csrf_token %}
         <button type="submit" class="btn btn-sm btn-danger">حذف</button>
     </form>
@@ -154,14 +109,9 @@
 
 
     <div class="row my-4">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="alert alert-info text-center">
             <h5>إجمالي عدد السيارات: {{ total_car_count }}</h5>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="alert alert-success text-center">
-            <h5>إجمالي عدد الموثقة: {{ total_documented_count }}</h5>
         </div>
     </div>
 </div>
