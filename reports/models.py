@@ -26,7 +26,7 @@ class Worker(AbstractNameModel):
     job = models.CharField(max_length=100 ,choices=x,default="موظف" , null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     salary = models.FloatField(null=True, blank=True,default=500)
-    worker_image = models.ImageField(upload_to='workers/', null=True, blank=True)
+    # worker_image = models.ImageField(upload_to='workers/', null=True, blank=True)
 
 
 class Attendance(models.Model):

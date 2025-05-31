@@ -8,7 +8,7 @@ from .models import Worker,FuelTransaction,Driver,CarRecords,Institution\
 class AddWorkerForm(forms.ModelForm):
     class Meta:
         model = Worker
-        fields = ["name","id_number", "job", "start_date","salary","worker_image"]
+        fields = ["name","id_number", "job", "start_date","salary"]
         # fields = ["name","id_number", "job", "start_date","salary"]
 
         widgets = {
@@ -59,7 +59,7 @@ class AddWorkerForm(forms.ModelForm):
                     'placeholder': 'الراتب'
                 }
             ),
-            'worker_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),  # ✅ هنا نضيف الكلاس
+            # 'worker_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),  # ✅ هنا نضيف الكلاس
 
 
 
@@ -72,7 +72,7 @@ class AddWorkerForm(forms.ModelForm):
             'job':'طبيعة العمل',
             'start_date': 'بداية العمل',
             'salary': 'الراتب',
-            'worker_image': 'صورة الموظف',
+            # 'worker_image': 'صورة الموظف',
         }
 
         # def __init__(self, *args, **kwargs):
