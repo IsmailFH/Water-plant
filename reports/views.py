@@ -63,9 +63,9 @@ def dashboard(request):
         report_date = now.date() - timedelta(days=1)  # اليوم السابق
 
     # فلترة السجلات حسب حقل التاريخ فقط
-    total_car_count_today = CarRecords.objects.filter(date=today).aggregate(Sum('car_count'))[
+    total_car_count_today = CarRecords.objects.filter(date=report_date).aggregate(Sum('car_count'))[
                                 'car_count__sum'] or 0
-    total_fountain_today = FountainRecords.objects.filter(date=today).aggregate(Sum('car_count'))[
+    total_fountain_today = FountainRecords.objects.filter(date=report_date).aggregate(Sum('car_count'))[
                                'car_count__sum'] or 0
 
     fuel_types = ['Solar', 'gasoline', 'oil']
@@ -83,30 +83,6 @@ def dashboard(request):
     total_fuel = total_fuel_in - total_fuel_out
 
     total_workers = Worker.objects.count()
-
-    # today = date.today()
-    # last_7_days = today - timedelta(days=6)
-    #
-    # data = (
-    #     CarRecords.objects
-    #         .filter(date__range=(last_7_days, today))
-    #         .annotate(day_only=TruncDate('date'))
-    #         .values('day_only')
-    #         .annotate(total=Sum('car_count'))
-    #         .order_by('day_only')
-    # )
-    #
-    # # ✅ معالجة اليوم بشكل آمن
-    # def safe_date_format(d):
-    #     if isinstance(d, str):
-    #         try:
-    #             d = datetime.strptime(d, "%Y-%m-%d").date()
-    #         except Exception:
-    #             return d  # في حال فشل التحويل
-    #     return d.strftime("%d/%m")
-    #
-    # dates = [safe_date_format(item['day_only']) for item in data]
-    # car_counts = [item['total'] for item in data]
 
     a=total_car_count+total_fountain_count
     b=total_car_count_today+total_fountain_today
@@ -127,9 +103,6 @@ def dashboard(request):
         'total_fuel_out': total_fuel_out,
         'total_fuel': total_fuel,
         'total_workers': total_workers,
-
-        # "chart_labels": dates,
-        # "chart_data": car_counts,
 
     }
     return render(request, 'reports/dashboard.html', context)
