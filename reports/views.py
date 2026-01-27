@@ -60,7 +60,7 @@ def dashboard(request):
     if now.time() >= cutoff_time:
         report_date = now.date()  # اليوم الحالي
     else:
-        report_date = now.date() - timedelta(days=1)  # اليوم السابق
+        report_date = now.date() - timedelta(days=1)
 
     # فلترة السجلات حسب حقل التاريخ فقط
     total_car_count_today = CarRecords.objects.filter(date=report_date).aggregate(Sum('car_count'))[
@@ -249,8 +249,8 @@ def workers_delays(request):
 
                 if att and att.check_in and att.check_out:
 
-                    expected_start = time(6, 0)
-                    expected_end = time(15, 0)
+                    expected_start = time(7, 0)
+                    expected_end = time(17, 0)
 
 
                     if att.check_in > expected_start:
