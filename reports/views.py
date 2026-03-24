@@ -177,50 +177,70 @@ def delete_worker_record(request, record_id):
     return redirect('workers_list')
 
 
+import traceback
 
 
 @login_required
 @manager_only
 def add_attendance(request):
-    selected_date_str = request.GET.get('date')
-    if selected_date_str:
-        selected_date = datetime.strptime(selected_date_str.strip(), '%Y-%m-%d').date()
-    else:
-        selected_date = timezone.now().date()
-    employees = Worker.objects.all()
-    attendance_data = []
+    try:
+        print("ENTERED add_attendance")
+        print("METHOD =", request.method)
+        print("GET date =", request.GET.get("date"))
+        print("POST selected_date =", request.POST.get("selected_date"))
 
-    if request.method == 'GET':
-        for emp in employees:
-            try:
-                attendance = Attendance.objects.get(employee=emp, date=selected_date)
-            except Attendance.DoesNotExist:
-                attendance = None
-            attendance_data.append({
-                'employee': emp,
-                'attendance': attendance
-            })
+        selected_date_str = request.GET.get('date')
+        if selected_date_str:
+            selected_date = datetime.strptime(selected_date_str.strip(), '%Y-%m-%d').date()
+        else:
+            selected_date = timezone.now().date()
 
-    elif request.method == 'POST':
-        selected_date_post = request.POST.get('selected_date')
-        selected_date = datetime.strptime(selected_date_post.strip(), '%Y-%m-%d').date()
+        employees = Worker.objects.all()
+        attendance_data = []
 
-        for emp in employees:
-            check_in = request.POST.get(f'check_in_{emp.id}')
-            check_out = request.POST.get(f'check_out_{emp.id}')
+        if request.method == 'GET':
+            for emp in employees:
+                try:
+                    attendance = Attendance.objects.get(employee=emp, date=selected_date)
+                except Attendance.DoesNotExist:
+                    attendance = None
 
-            attendance, created = Attendance.objects.get_or_create(employee=emp, date=selected_date)
-            attendance.check_in = check_in if check_in else None
-            attendance.check_out = check_out if check_out else None
-            attendance.save()
-        return redirect(f"{reverse('add_attendance')}?date={selected_date}")
+                attendance_data.append({
+                    'employee': emp,
+                    'attendance': attendance
+                })
 
-    return render(request, 'attendance/add_attendance.html', {
-        'selected_date': selected_date,
-        'attendance_data': attendance_data,
-    })
+        elif request.method == 'POST':
+            selected_date_post = request.POST.get('selected_date')
+            print("POST selected_date raw =", selected_date_post)
 
+            selected_date = datetime.strptime(selected_date_post.strip(), '%Y-%m-%d').date()
 
+            for emp in employees:
+                check_in = request.POST.get(f'check_in_{emp.id}')
+                check_out = request.POST.get(f'check_out_{emp.id}')
+                print("EMP", emp.id, check_in, check_out)
+
+                attendance, created = Attendance.objects.get_or_create(
+                    employee=emp,
+                    date=selected_date
+                )
+                attendance.check_in = check_in if check_in else None
+                attendance.check_out = check_out if check_out else None
+                attendance.save()
+
+            return redirect(f"{reverse('add_attendance')}?date={selected_date}")
+
+        return render(request, 'attendance/add_attendance.html', {
+            'selected_date': selected_date,
+            'attendance_data': attendance_data,
+        })
+
+    except Exception as e:
+        print("===== add_attendance ERROR =====")
+        print(str(e))
+        traceback.print_exc()
+        raise
 @login_required
 @manager_only
 def workers_delays(request):
