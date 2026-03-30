@@ -62,4 +62,8 @@ urlpatterns = [
     path('financial_report/', views.financial_report, name='financial_report'),
 
 
+    path('add_vehicle_fuel_record/', views.add_vehicle_fuel_record, name='add_vehicle_fuel_record'),
+    path('vehicle_fuel_list/', views.vehicle_fuel_list, name='vehicle_fuel_list'),
+    path('edit-vehicle-fuel/<int:pk>/', views.edit_vehicle_fuel_record, name='edit_vehicle_fuel_record'),
+    path('vehicle-fuel-records/delete/<int:record_id>/', views.delete_vehicle_fuel_record, name='delete_vehicle_fuel_record'),
 ]

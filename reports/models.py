@@ -154,3 +154,20 @@ class Expenses(models.Model):
 
     def __str__(self):
         return f"{self.day} - {self.palce}"
+
+
+class VehicleFuelRecord(models.Model):
+    date = models.DateField()
+    vehicle_name = models.CharField(max_length=255, verbose_name="السيارة")
+    driver_name = models.CharField(max_length=255, verbose_name="اسم السائق")
+    fuel_quantity = models.FloatField(verbose_name="كمية السولار")
+    odometer_before = models.PositiveIntegerField(verbose_name="قراءة العداد قبل")
+    odometer_after = models.PositiveIntegerField(verbose_name="قراءة العداد بعد")
+    notes = models.CharField(max_length=300, null=True, blank=True, default="لا يوجد", verbose_name="ملاحظات")
+
+    @property
+    def distance_difference(self):
+        return self.odometer_after - self.odometer_before
+
+    def __str__(self):
+        return f"{self.vehicle_name} - {self.date}"

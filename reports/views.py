@@ -14,12 +14,12 @@ from .models import CarRecords, FountainRecords
 from .models import (
     Worker, Attendance, Driver, FuelTransaction, Institution, CarRecords,
     Maintenance, Expenses, Expenses_type, Place_Expenses, Device,
-    MainItem, SubItem, MaintenanceLocation
+    MainItem, SubItem, MaintenanceLocation,VehicleFuelRecord
 )
 from .forms import (
     AddWorkerForm, FuelTransactionForm, DriverForm, CarRecordsForm, InstitutionForm,
     MaintenanceForm, ExpensesFrom, Expenses_typeForm, place_ExpensesForm,
-    MaintenanceLocationForm, MainItemForm, SubItemForm, DeviceForm, FountainRecordsForm
+    MaintenanceLocationForm, MainItemForm, SubItemForm, DeviceForm, FountainRecordsForm,VehicleFuelRecordForm
 )
 from .decorators import manager_only, worker_only
 
@@ -1064,3 +1064,106 @@ def financial_report(request):
 
     return render(request, 'reports/financial_report.html', context)
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Sum
+
+@login_required
+@manager_only
+def add_vehicle_fuel_record(request):
+    if request.method == 'POST':
+        form = VehicleFuelRecordForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('vehicle_fuel_list')
+        else:
+            print(form.errors)
+    else:
+        form = VehicleFuelRecordForm()
+
+    context = {
+        'form': form
+    }
+    return render(request, 'vehicle_fuel/add_vehicle_fuel_record.html', context)
+
+
+@login_required
+@manager_only
+def vehicle_fuel_list(request):
+    records = VehicleFuelRecord.objects.select_related('driver').all()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    driver_id = request.GET.get('driver')
+
+    if start_date:
+        records = records.filter(date__gte=start_date)
+
+    if end_date:
+        records = records.filter(date__lte=end_date)
+
+    if driver_id:
+        records = records.filter(driver_id=driver_id)
+
+    records = records.order_by('-date', '-id')
+
+    total_fuel_quantity = records.aggregate(total=Sum('fuel_quantity'))['total'] or 0
+
+    total_distance = 0
+    for record in records:
+        total_distance += record.distance_difference
+
+    paginator = Paginator(records, 20)
+    page = request.GET.get('page')
+
+    try:
+        records = paginator.page(page)
+    except PageNotAnInteger:
+        records = paginator.page(1)
+    except EmptyPage:
+        records = paginator.page(paginator.num_pages)
+
+    context = {
+        'records': records,
+        'total_fuel_quantity': total_fuel_quantity,
+        'total_distance': total_distance,
+        'start_date': start_date,
+        'end_date': end_date,
+        'driver_id': driver_id,
+        'drivers': Driver.objects.all(),
+    }
+
+    return render(request, 'vehicle_fuel/vehicle_fuel_list.html', context)
+
+
+@login_required
+@manager_only
+def edit_vehicle_fuel_record(request, pk):
+    record = get_object_or_404(VehicleFuelRecord, pk=pk)
+
+    if request.method == 'POST':
+        form = VehicleFuelRecordForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            return redirect('vehicle_fuel_list')
+        else:
+            print(form.errors)
+    else:
+        form = VehicleFuelRecordForm(instance=record)
+
+    context = {
+        'form': form,
+        'record': record,
+    }
+    return render(request, 'vehicle_fuel/edit_vehicle_fuel_record.html', context)
+
+
+@login_required
+@manager_only
+@require_POST
+def delete_vehicle_fuel_record(request, record_id):
+    record = get_object_or_404(VehicleFuelRecord, id=record_id)
+    record.delete()
+    return redirect('vehicle_fuel_list')

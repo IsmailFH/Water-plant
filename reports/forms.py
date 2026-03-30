@@ -3,7 +3,7 @@ import datetime
 from django import forms
 from .models import Worker,FuelTransaction,Driver,CarRecords,Institution\
     ,Maintenance,Place_Expenses,Expenses_type,\
-    Expenses,MaintenanceLocation, MainItem, SubItem, Device
+    Expenses,MaintenanceLocation, MainItem, SubItem, Device,VehicleFuelRecord
 
 class AddWorkerForm(forms.ModelForm):
     class Meta:
@@ -334,3 +334,47 @@ class ExpensesFrom(forms.ModelForm):
         today = datetime.date.today()
         self.fields['date'].initial = today
         self.fields['day'].initial = today.strftime('%A')
+
+
+class VehicleFuelRecordForm(forms.ModelForm):
+    class Meta:
+        model = VehicleFuelRecord
+        fields = [
+            'date',
+            'driver',
+            'fuel_quantity',
+            'odometer_before',
+            'odometer_after',
+            'notes',
+        ]
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'driver': forms.Select(attrs={'class': 'form-control'}),
+            'fuel_quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'كمية السولار'}),
+            'odometer_before': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'قراءة العداد قبل'}),
+            'odometer_after': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'قراءة العداد بعد'}),
+            'notes': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'ملاحظات اختيارية'}),
+        }
+        labels = {
+            'date': 'التاريخ',
+            'driver': 'اسم السائق',
+            'fuel_quantity': 'كمية السولار',
+            'odometer_before': 'قراءة العداد قبل',
+            'odometer_after': 'قراءة العداد بعد',
+            'notes': 'ملاحظات',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['driver'].empty_label = "اختر السائق"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        odometer_before = cleaned_data.get('odometer_before')
+        odometer_after = cleaned_data.get('odometer_after')
+
+        if odometer_before is not None and odometer_after is not None:
+            if odometer_after < odometer_before:
+                self.add_error('odometer_after', 'قراءة العداد بعد يجب أن تكون أكبر من أو تساوي قراءة العداد قبل')
+
+        return cleaned_data
