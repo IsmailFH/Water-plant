@@ -1,0 +1,46 @@
+{% extends 'reports/base.html' %}
+{% block title %}تعديل سجل سولار سيارة{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">تعديل سجل سولار سيارة</h2>
+
+    <form method="post" class="row g-3 shadow p-4 bg-light rounded">
+        {% csrf_token %}
+
+        <div class="col-md-4">
+            <label class="form-label">التاريخ</label>
+            {{ form.date }}
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">اسم السائق</label>
+            {{ form.driver }}
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">كمية السولار</label>
+            {{ form.fuel_quantity }}
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">قراءة العداد قبل</label>
+            {{ form.odometer_before }}
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">قراءة العداد بعد</label>
+            {{ form.odometer_after }}
+        </div>
+
+        <div class="col-md-12">
+            <label class="form-label">ملاحظات</label>
+            {{ form.notes }}
+        </div>
+
+        <div class="col-md-12 text-end">
+            <button type="submit" class="btn btn-success px-4">حفظ</button>
+            <a href="{% url 'vehicle_fuel_list' %}" class="btn btn-secondary">إلغاء</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
