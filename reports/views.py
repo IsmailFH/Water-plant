@@ -383,6 +383,10 @@ def fuel_transaction_list(request):
     if fuel_filter:
         transactions = transactions.filter(fuel_type=fuel_filter)
 
+    usage_type_filter = request.GET.get('usage_type')
+    if usage_type_filter:
+        transactions = transactions.filter(usage_type=usage_type_filter)
+
     transaction_type_filter = request.GET.get('transaction_type')
     if transaction_type_filter:
         transactions = transactions.filter(type=transaction_type_filter)
@@ -445,8 +449,6 @@ def fuel_transaction_list(request):
             'day': arabic_days[t.date.strftime('%A')],
             'current_balance': current_balances[fuel],
             'run_time_hours': run_time_hours,
-
-            # 🔥 الجديد
             'usage_type': t.usage_type,
             'driver': t.driver,
             'start_time': t.start_time,
