@@ -383,9 +383,9 @@ def fuel_transaction_list(request):
     if fuel_filter:
         transactions = transactions.filter(fuel_type=fuel_filter)
 
-    # usage_type_filter = request.GET.get('usage_type')
-    # if usage_type_filter:
-    #     transactions = transactions.filter(usage_type=usage_type_filter)
+    usage_type_filter = request.GET.get('usage_type')
+    if usage_type_filter:
+        transactions = transactions.filter(usage_type=usage_type_filter)
 
     transaction_type_filter = request.GET.get('transaction_type')
     if transaction_type_filter:
