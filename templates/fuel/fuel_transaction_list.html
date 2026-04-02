@@ -77,7 +77,15 @@
                 <tr>
                     <td>{{ t.date }}</td>
                     <td>{{ t.day }}</td>
-                    <td>{{ t.type }}</td>
+                    <td>
+    {% if t.type == 'in' %}
+        وارد
+    {% elif t.type == 'out' %}
+        صادر
+    {% else %}
+        {{ t.type }}
+    {% endif %}
+</td>
                     <td>{{ t.fuel_type }}</td>
                     <td>{{ t.quantity }}</td>
 
@@ -103,9 +111,16 @@
                     <td>{{ t.meter_after|default:"-" }}</td>
                     <td>{{ t.odometer_difference|default:"-" }}</td>
 
-                    <td>
-                        <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
-                    </td>
+<td>
+    <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
+
+    <form method="post" action="{% url 'delete_fuel_record' t.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
+            حذف
+        </button>
+    </form>
+</td>
                 </tr>
                 {% endfor %}
             </tbody>
