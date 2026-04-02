@@ -170,11 +170,15 @@ class FuelTransactionForm(forms.ModelForm):
             if usage_type == 'vehicle':
                 if not driver:
                     self.add_error('driver', 'يجب اختيار السائق')
+                if meter_before is None:
+                    self.add_error('meter_before', 'القراءة قبل مطلوبة')
+                if meter_after is None:
+                    self.add_error('meter_after', 'القراءة بعد مطلوبة')
+                if meter_before is not None and meter_after is not None and meter_after < meter_before:
+                    self.add_error('meter_after', 'القراءة بعد يجب أن تكون أكبر من أو تساوي القراءة قبل')
 
                 cleaned_data['start_time'] = None
                 cleaned_data['end_time'] = None
-                cleaned_data['meter_before'] = None
-                cleaned_data['meter_after'] = None
 
             elif usage_type == 'motor':
                 if not start_time:

@@ -122,23 +122,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const driverWrapper = document.getElementById('driver_wrapper');
     const motorFields = document.getElementById('motor_fields');
 
+    const startTimeField = document.getElementById('id_start_time');
+    const endTimeField = document.getElementById('id_end_time');
+    const meterBeforeField = document.getElementById('id_meter_before');
+    const meterAfterField = document.getElementById('id_meter_after');
+
+    const startTimeWrapper = startTimeField ? startTimeField.closest('.col-md-3') : null;
+    const endTimeWrapper = endTimeField ? endTimeField.closest('.col-md-3') : null;
+    const meterBeforeWrapper = meterBeforeField ? meterBeforeField.closest('.col-md-3') : null;
+    const meterAfterWrapper = meterAfterField ? meterAfterField.closest('.col-md-3') : null;
+
     function clearVehicleFields() {
         const driverField = document.getElementById('id_driver');
-        if (driverField) {
-            driverField.value = '';
-        }
+        if (driverField) driverField.value = '';
     }
 
-    function clearMotorFields() {
-        const startTime = document.getElementById('id_start_time');
-        const endTime = document.getElementById('id_end_time');
-        const meterBefore = document.getElementById('id_meter_before');
-        const meterAfter = document.getElementById('id_meter_after');
+    function clearMotorTimeFields() {
+        if (startTimeField) startTimeField.value = '';
+        if (endTimeField) endTimeField.value = '';
+    }
 
-        if (startTime) startTime.value = '';
-        if (endTime) endTime.value = '';
-        if (meterBefore) meterBefore.value = '';
-        if (meterAfter) meterAfter.value = '';
+    function clearMeterFields() {
+        if (meterBeforeField) meterBeforeField.value = '';
+        if (meterAfterField) meterAfterField.value = '';
     }
 
     function toggleFields(resetHiddenFields = false) {
@@ -149,32 +155,48 @@ document.addEventListener('DOMContentLoaded', function () {
         driverWrapper.style.display = 'none';
         motorFields.style.display = 'none';
 
+        if (startTimeWrapper) startTimeWrapper.style.display = 'none';
+        if (endTimeWrapper) endTimeWrapper.style.display = 'none';
+        if (meterBeforeWrapper) meterBeforeWrapper.style.display = 'none';
+        if (meterAfterWrapper) meterAfterWrapper.style.display = 'none';
+
         if (transactionType === 'out') {
             usageWrapper.style.display = 'block';
 
             if (usageType === 'vehicle') {
                 driverWrapper.style.display = 'block';
+                motorFields.style.display = 'flex';
+
+                if (meterBeforeWrapper) meterBeforeWrapper.style.display = 'block';
+                if (meterAfterWrapper) meterAfterWrapper.style.display = 'block';
+
                 if (resetHiddenFields) {
-                    clearMotorFields();
+                    clearMotorTimeFields();
                 }
             } else if (usageType === 'motor') {
                 motorFields.style.display = 'flex';
+
+                if (startTimeWrapper) startTimeWrapper.style.display = 'block';
+                if (endTimeWrapper) endTimeWrapper.style.display = 'block';
+                if (meterBeforeWrapper) meterBeforeWrapper.style.display = 'block';
+                if (meterAfterWrapper) meterAfterWrapper.style.display = 'block';
+
                 if (resetHiddenFields) {
                     clearVehicleFields();
                 }
             } else {
                 if (resetHiddenFields) {
                     clearVehicleFields();
-                    clearMotorFields();
+                    clearMotorTimeFields();
+                    clearMeterFields();
                 }
             }
         } else {
             if (resetHiddenFields) {
                 clearVehicleFields();
-                clearMotorFields();
-                if (usageField) {
-                    usageField.value = '';
-                }
+                clearMotorTimeFields();
+                clearMeterFields();
+                if (usageField) usageField.value = '';
             }
         }
     }
