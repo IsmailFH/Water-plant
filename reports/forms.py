@@ -80,30 +80,125 @@ class AddWorkerForm(forms.ModelForm):
         #     for field in self.fields.values():
         #         field.widget.attrs['class'] = 'form-control'
 
+# class FuelTransactionForm(forms.ModelForm):
+#     class Meta:
+#         model = FuelTransaction
+#         fields = ['fuel_type', 'date', 'type', 'quantity', 'fuel_transaction_source','start_time','end_time']
+#         widgets = {
+#             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+#             'type': forms.Select(attrs={'class': 'form-control'}),
+#             'fuel_type': forms.Select(attrs={'class': 'form-control'}),
+#             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'كمية السولار'}),
+#             'fuel_transaction_source': forms.Select(attrs={'class': 'form-control', 'placeholder': 'مصدر السولار'}),
+#             'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+#             'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+#
+#         }
+#         labels = {
+#             'fuel_type': 'نوع السولار',
+#             'date': 'التاريخ',
+#             'type': 'نوع العملية',
+#             'quantity': 'عدد اللترات',
+#             'fuel_transaction_source ': 'مصدر السولار',
+#             'start_time': 'ساة التشغيل',
+#             'end_time': ' ساعة الايقاف',
+#         }
+#
+
 class FuelTransactionForm(forms.ModelForm):
     class Meta:
         model = FuelTransaction
-        fields = ['fuel_type', 'date', 'type', 'quantity', 'fuel_transaction_source','start_time','end_time']
+        fields = [
+            'fuel_type',
+            'date',
+            'type',
+            'quantity',
+            'fuel_transaction_source',
+            'usage_type',
+            'driver',
+            'start_time',
+            'end_time',
+            'meter_before',
+            'meter_after',
+        ]
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'type': forms.Select(attrs={'class': 'form-control'}),
+            'type': forms.Select(attrs={'class': 'form-control', 'id': 'id_type'}),
             'fuel_type': forms.Select(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'كمية السولار'}),
-            'fuel_transaction_source': forms.Select(attrs={'class': 'form-control', 'placeholder': 'مصدر السولار'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'كمية المحروقات'}),
+            'fuel_transaction_source': forms.Select(attrs={'class': 'form-control'}),
+            'usage_type': forms.Select(attrs={'class': 'form-control', 'id': 'id_usage_type'}),
+            'driver': forms.Select(attrs={'class': 'form-control'}),
             'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
             'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
-
+            'meter_before': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'القراءة قبل', 'min': '0', 'step': '1'}),
+            'meter_after': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'القراءة بعد', 'min': '0', 'step': '1'}),
         }
         labels = {
-            'fuel_type': 'نوع السولار',
+            'fuel_type': 'نوع المحروقات',
             'date': 'التاريخ',
             'type': 'نوع العملية',
-            'quantity': 'عدد اللترات',
-            'fuel_transaction_source ': 'مصدر السولار',
-            'start_time': 'ساة التشغيل',
-            'end_time': ' ساعة الايقاف',
+            'quantity': 'الكمية',
+            'fuel_transaction_source': 'مصدر المحروقات',
+            'usage_type': 'الجهة',
+            'driver': 'اسم السائق',
+            'start_time': 'ساعة التشغيل',
+            'end_time': 'ساعة الإيقاف',
+            'meter_before': 'القراءة قبل',
+            'meter_after': 'القراءة بعد',
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['driver'].empty_label = "اختر السائق"
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        transaction_type = cleaned_data.get('type')
+        usage_type = cleaned_data.get('usage_type')
+        driver = cleaned_data.get('driver')
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
+        meter_before = cleaned_data.get('meter_before')
+        meter_after = cleaned_data.get('meter_after')
+
+        if transaction_type == 'out':
+            if not usage_type:
+                self.add_error('usage_type', 'يجب تحديد الجهة')
+
+            if usage_type == 'vehicle':
+                if not driver:
+                    self.add_error('driver', 'يجب اختيار السائق')
+
+                cleaned_data['start_time'] = None
+                cleaned_data['end_time'] = None
+                cleaned_data['meter_before'] = None
+                cleaned_data['meter_after'] = None
+
+            elif usage_type == 'motor':
+                if not start_time:
+                    self.add_error('start_time', 'ساعة التشغيل مطلوبة')
+                if not end_time:
+                    self.add_error('end_time', 'ساعة الإيقاف مطلوبة')
+                if meter_before is None:
+                    self.add_error('meter_before', 'القراءة قبل مطلوبة')
+                if meter_after is None:
+                    self.add_error('meter_after', 'القراءة بعد مطلوبة')
+                if meter_before is not None and meter_after is not None and meter_after < meter_before:
+                    self.add_error('meter_after', 'القراءة بعد يجب أن تكون أكبر من أو تساوي القراءة قبل')
+
+                cleaned_data['driver'] = None
+
+        else:
+            cleaned_data['usage_type'] = None
+            cleaned_data['driver'] = None
+            cleaned_data['start_time'] = None
+            cleaned_data['end_time'] = None
+            cleaned_data['meter_before'] = None
+            cleaned_data['meter_after'] = None
+
+        return cleaned_data
 
 class CarRecordsForm(forms.ModelForm):
     COUNT_CHOICES = [(i, str(i)) for i in range(1, 51)]

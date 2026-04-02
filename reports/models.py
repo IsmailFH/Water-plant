@@ -39,6 +39,41 @@ class Attendance(models.Model):
         unique_together = ('employee', 'date')
 
 
+# class FuelTransaction(models.Model):
+#     FUEL_TYPES = [
+#         ('Solar', 'سولار'),
+#         ('gasoline', 'بنزين'),
+#         ('oil', 'زيت'),
+#     ]
+#     TRANSACTION_TYPES = [
+#         ('in', 'وارد'),
+#         ('out', 'صادر'),
+#     ]
+#     FUEL_TRANSACTION_TYPES = [
+#         ('خاص', 'خاص'),
+#         ('بلدية', 'بلدية'),
+#         ('أخرى', 'أخرى'),
+#     ]
+#
+#
+#     fuel_type = models.CharField(max_length=13, choices=FUEL_TYPES, default='gasoline')
+#     type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
+#     date = models.DateField()
+#     quantity = models.FloatField()
+#     fuel_transaction_source = models.CharField(max_length=13, choices=FUEL_TRANSACTION_TYPES, default='خاص')
+#     total_cost = models.FloatField(blank=True, null=True)
+#     start_time = models.TimeField(null=True, blank=True)
+#     end_time = models.TimeField(null=True, blank=True)
+#
+#     def operating_hours(self):
+#         if self.start_time and self.end_time:
+#             # start = datetime.combine(datetime.date.today(), self.start_time)
+#             start = datetime.datetime.combine(datetime.date.today(), self.start_time)
+#             end = datetime.combine(datetime.date.today(), self.end_time)
+#             delta = end - start
+#             return delta.total_seconds() / 3600
+#         return None
+
 class FuelTransaction(models.Model):
     FUEL_TYPES = [
         ('Solar', 'سولار'),
@@ -55,6 +90,11 @@ class FuelTransaction(models.Model):
         ('أخرى', 'أخرى'),
     ]
 
+    USAGE_TYPES = [
+        ('', '---------'),
+        ('motor', 'ماتور'),
+        ('vehicle', 'سيارة'),
+    ]
 
     fuel_type = models.CharField(max_length=13, choices=FUEL_TYPES, default='gasoline')
     type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
@@ -62,23 +102,29 @@ class FuelTransaction(models.Model):
     quantity = models.FloatField()
     fuel_transaction_source = models.CharField(max_length=13, choices=FUEL_TRANSACTION_TYPES, default='خاص')
     total_cost = models.FloatField(blank=True, null=True)
+
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
 
+    usage_type = models.CharField(max_length=20, choices=USAGE_TYPES, blank=True, null=True, verbose_name="الجهة")
+    driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="اسم السائق")
+
+    meter_before = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة قبل")
+    meter_after = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة بعد")
+
+    def odometer_difference(self):
+        if self.meter_before is not None and self.meter_after is not None:
+            return self.meter_after - self.meter_before
+        return None
+
     def operating_hours(self):
         if self.start_time and self.end_time:
-            # start = datetime.combine(datetime.date.today(), self.start_time)
+            import datetime
             start = datetime.datetime.combine(datetime.date.today(), self.start_time)
-            end = datetime.combine(datetime.date.today(), self.end_time)
+            end = datetime.datetime.combine(datetime.date.today(), self.end_time)
             delta = end - start
             return delta.total_seconds() / 3600
         return None
-
-    # def save(self, *args, **kwargs):
-    #     if self.quantity is not None and self.price_per_liter is not None:
-    #         self.total_cost = self.quantity * self.price_per_liter
-    #     super().save(*args, **kwargs)
-
 
 class Driver(AbstractNameModel):
     id_number=models.CharField()

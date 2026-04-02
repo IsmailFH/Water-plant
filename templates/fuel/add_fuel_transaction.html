@@ -1,43 +1,26 @@
 {% extends 'reports/base.html' %}
-{% block title %}إضافة محروقات{% endblock %}
-{% block content %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% block title %}إضافة عملية محروقات{% endblock %}
 
+{% block content %}
 <div class="container my-5" dir="rtl">
-    <h2 class="text-center text-primary mb-4">إضافة محروقات</h2>
+    <h2 class="text-center text-primary mb-4">إضافة عملية محروقات</h2>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <form method="post" class="row g-3 shadow p-4 bg-light rounded">
         {% csrf_token %}
-
-        <div class="col-md-4">
-            <label for="{{ form.type.id_for_label }}" class="form-label">نوع العملية</label>
-            {{ form.type }}
-            {% if form.type.errors %}
-                <div class="text-danger">{{ form.type.errors }}</div>
-            {% endif %}
-        </div>
 
         <div class="col-md-4">
             <label for="{{ form.fuel_type.id_for_label }}" class="form-label">نوع المحروقات</label>
             {{ form.fuel_type }}
             {% if form.fuel_type.errors %}
                 <div class="text-danger">{{ form.fuel_type.errors }}</div>
-            {% endif %}
-        </div>
-
-        <div class="col-md-4">
-            <label for="{{ form.quantity.id_for_label }}" class="form-label">عدد اللترات</label>
-            {{ form.quantity }}
-            {% if form.quantity.errors %}
-                <div class="text-danger">{{ form.quantity.errors }}</div>
-            {% endif %}
-        </div>
-
-        <div class="col-md-4">
-            <label for="{{ form.price_per_liter.id_for_label }}" class="form-label">مصدر السولار</label>
-            {{ form.fuel_transaction_source }}
-            {% if form.fuel_transaction_source.errors %}
-                <div class="text-danger">{{ form.fuel_transaction_source.errors }}</div>
             {% endif %}
         </div>
 
@@ -50,56 +33,165 @@
         </div>
 
         <div class="col-md-4">
-            <label for="{{ form.start_time.id_for_label }}" class="form-label">ساعة التشغيل</label>
-            {{ form.start_time }}
-            {% if form.start_time.errors %}
-                <div class="text-danger">{{ form.start_time.errors }}</div>
+            <label for="{{ form.type.id_for_label }}" class="form-label">نوع العملية</label>
+            {{ form.type }}
+            {% if form.type.errors %}
+                <div class="text-danger">{{ form.type.errors }}</div>
             {% endif %}
         </div>
 
         <div class="col-md-4">
-            <label for="{{ form.end_time.id_for_label }}" class="form-label">ساعة الايقاف</label>
-            {{ form.end_time }}
-            {% if form.end_time.errors %}
-                <div class="text-danger">{{ form.end_time.errors }}</div>
+            <label for="{{ form.quantity.id_for_label }}" class="form-label">الكمية</label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+                <div class="text-danger">{{ form.quantity.errors }}</div>
             {% endif %}
         </div>
 
-        <div class="col-md-12 text-end">
-            <button type="submit" class="btn btn-success px-4">حفظ</button>
-            <a href="{% url 'fuel_transaction_list' %}" class="btn btn-secondary">رجوع للتقارير</a>
+        <div class="col-md-4">
+            <label for="{{ form.fuel_transaction_source.id_for_label }}" class="form-label">مصدر المحروقات</label>
+            {{ form.fuel_transaction_source }}
+            {% if form.fuel_transaction_source.errors %}
+                <div class="text-danger">{{ form.fuel_transaction_source.errors }}</div>
+            {% endif %}
         </div>
 
+        <div class="col-md-4" id="usage_type_wrapper" style="display:none;">
+            <label for="{{ form.usage_type.id_for_label }}" class="form-label">الجهة</label>
+            {{ form.usage_type }}
+            {% if form.usage_type.errors %}
+                <div class="text-danger">{{ form.usage_type.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4" id="driver_wrapper" style="display:none;">
+            <label for="{{ form.driver.id_for_label }}" class="form-label">اسم السائق</label>
+            {{ form.driver }}
+            {% if form.driver.errors %}
+                <div class="text-danger">{{ form.driver.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div id="motor_fields" class="row g-3" style="display:none;">
+            <div class="col-md-3">
+                <label for="{{ form.start_time.id_for_label }}" class="form-label">ساعة التشغيل</label>
+                {{ form.start_time }}
+                {% if form.start_time.errors %}
+                    <div class="text-danger">{{ form.start_time.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-3">
+                <label for="{{ form.end_time.id_for_label }}" class="form-label">ساعة الإيقاف</label>
+                {{ form.end_time }}
+                {% if form.end_time.errors %}
+                    <div class="text-danger">{{ form.end_time.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-3">
+                <label for="{{ form.meter_before.id_for_label }}" class="form-label">القراءة قبل</label>
+                {{ form.meter_before }}
+                {% if form.meter_before.errors %}
+                    <div class="text-danger">{{ form.meter_before.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-3">
+                <label for="{{ form.meter_after.id_for_label }}" class="form-label">القراءة بعد</label>
+                {{ form.meter_after }}
+                {% if form.meter_after.errors %}
+                    <div class="text-danger">{{ form.meter_after.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-12 text-end mt-4">
+            <button type="submit" class="btn btn-success px-4">حفظ</button>
+            <a href="{% url 'fuel_transaction_list' %}" class="btn btn-secondary">إلغاء</a>
+        </div>
     </form>
-    <script>
-function toggleGeneratorFields() {
-    const operationType = document.getElementById('operation-type').value;
-    const generatorFields = document.getElementById('generator-fields');
-    if (operationType === 'صادر') {
-        generatorFields.style.display = 'block';
-    } else {
-        generatorFields.style.display = 'none';
-        document.getElementById('generator-start').value = '';
-        document.getElementById('generator-stop').value = '';
-    }
-}
-</script>
 </div>
 
 <script>
-$(document).ready(function() {
-    function toggleFields() {
-        if ($('#id_type').val() === 'out') {
-            $('#id_start_time').prop('disabled', false);
-            $('#id_end_time').prop('disabled', false);
-        } else {
-            $('#id_start_time').prop('disabled', true).val('');
-            $('#id_end_time').prop('disabled', true).val('');
+document.addEventListener('DOMContentLoaded', function () {
+    const typeField = document.getElementById('id_type');
+    const usageField = document.getElementById('id_usage_type');
+
+    const usageWrapper = document.getElementById('usage_type_wrapper');
+    const driverWrapper = document.getElementById('driver_wrapper');
+    const motorFields = document.getElementById('motor_fields');
+
+    function clearVehicleFields() {
+        const driverField = document.getElementById('id_driver');
+        if (driverField) {
+            driverField.value = '';
         }
     }
 
-    toggleFields();
-    $('#id_type').change(toggleFields);
+    function clearMotorFields() {
+        const startTime = document.getElementById('id_start_time');
+        const endTime = document.getElementById('id_end_time');
+        const meterBefore = document.getElementById('id_meter_before');
+        const meterAfter = document.getElementById('id_meter_after');
+
+        if (startTime) startTime.value = '';
+        if (endTime) endTime.value = '';
+        if (meterBefore) meterBefore.value = '';
+        if (meterAfter) meterAfter.value = '';
+    }
+
+    function toggleFields(resetHiddenFields = false) {
+        const transactionType = typeField ? typeField.value : '';
+        const usageType = usageField ? usageField.value : '';
+
+        usageWrapper.style.display = 'none';
+        driverWrapper.style.display = 'none';
+        motorFields.style.display = 'none';
+
+        if (transactionType === 'out') {
+            usageWrapper.style.display = 'block';
+
+            if (usageType === 'vehicle') {
+                driverWrapper.style.display = 'block';
+                if (resetHiddenFields) {
+                    clearMotorFields();
+                }
+            } else if (usageType === 'motor') {
+                motorFields.style.display = 'flex';
+                if (resetHiddenFields) {
+                    clearVehicleFields();
+                }
+            } else {
+                if (resetHiddenFields) {
+                    clearVehicleFields();
+                    clearMotorFields();
+                }
+            }
+        } else {
+            if (resetHiddenFields) {
+                clearVehicleFields();
+                clearMotorFields();
+                if (usageField) {
+                    usageField.value = '';
+                }
+            }
+        }
+    }
+
+    if (typeField) {
+        typeField.addEventListener('change', function () {
+            toggleFields(true);
+        });
+    }
+
+    if (usageField) {
+        usageField.addEventListener('change', function () {
+            toggleFields(true);
+        });
+    }
+
+    toggleFields(false);
 });
 </script>
 {% endblock %}

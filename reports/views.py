@@ -446,6 +446,18 @@ def fuel_transaction_list(request):
             'current_balance': current_balances[fuel],
             'run_time_hours': run_time_hours,
 
+            # 🔥 الجديد
+            'usage_type': t.usage_type,
+            'driver': t.driver,
+            'start_time': t.start_time,
+            'end_time': t.end_time,
+            'meter_before': t.meter_before,
+            'meter_after': t.meter_after,
+            'odometer_difference': (
+                t.meter_after - t.meter_before
+                if t.meter_before is not None and t.meter_after is not None
+                else None
+            ),
         })
         # ✨ Pagination
     paginator = Paginator(processed, 20)
