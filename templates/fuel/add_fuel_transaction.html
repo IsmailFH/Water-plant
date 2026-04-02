@@ -67,13 +67,7 @@
             {% endif %}
         </div>
 
-        <div class="col-md-4" id="driver_wrapper" style="display:none;">
-            <label for="{{ form.driver.id_for_label }}" class="form-label">اسم السائق</label>
-            {{ form.driver }}
-            {% if form.driver.errors %}
-                <div class="text-danger">{{ form.driver.errors }}</div>
-            {% endif %}
-        </div>
+
 
         <div id="motor_fields" class="row g-3" style="display:none;">
             <div class="col-md-3">
@@ -107,6 +101,13 @@
                     <div class="text-danger">{{ form.meter_after.errors }}</div>
                 {% endif %}
             </div>
+                    <div class="col-md-4" id="driver_wrapper" style="display:none;">
+            <label for="{{ form.driver.id_for_label }}" class="form-label">اسم السائق</label>
+            {{ form.driver }}
+            {% if form.driver.errors %}
+                <div class="text-danger">{{ form.driver.errors }}</div>
+            {% endif %}
+        </div>
         </div>
 
         <div class="col-12 text-end mt-4">
