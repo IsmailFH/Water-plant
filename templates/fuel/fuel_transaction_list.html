@@ -217,24 +217,36 @@
     </div>
 
     {% if transactions.has_other_pages %}
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            {% if transactions.has_previous %}
-                <li class="page-item">
-<a class="page-link" href="?page={{ transactions.previous_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&fuel_type={{ request.GET.fuel_type }}&transaction_type={{ request.GET.transaction_type }}&usage_type={{ request.GET.usage_type }}">السابق</a>
-            {% for num in transactions.paginator.page_range %}
-                {% if transactions.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                {% else %}
-                    <li class="page-item">
-<a class="page-link" href="?page={{ num }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&fuel_type={{ request.GET.fuel_type }}&transaction_type={{ request.GET.transaction_type }}">{{ num }}</a>                    </li>
-                {% endif %}
-            {% endfor %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
 
-            {% if transactions.has_next %}
+        {% if transactions.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ transactions.previous_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&fuel_type={{ request.GET.fuel_type }}&transaction_type={{ request.GET.transaction_type }}&usage_type={{ request.GET.usage_type }}">السابق</a>
+            </li>
+        {% endif %}
+
+        {% for num in transactions.paginator.page_range %}
+            {% if transactions.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% else %}
                 <li class="page-item">
-<a class="page-link" href="?page={{ transactions.next_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&fuel_type={{ request.GET.fuel_type }}&transaction_type={{ request.GET.transaction_type }}">التالي</a>                </li>
+                    <a class="page-link" href="?page={{ num }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&fuel_type={{ request.GET.fuel_type }}&transaction_type={{ request.GET.transaction_type }}&usage_type={{ request.GET.usage_type }}">{{ num }}</a>
+                </li>
             {% endif %}
+        {% endfor %}
+
+        {% if transactions.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ transactions.next_page_number }}&start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}&fuel_type={{ request.GET.fuel_type }}&transaction_type={{ request.GET.transaction_type }}&usage_type={{ request.GET.usage_type }}">التالي</a>
+            </li>
+        {% endif %}
+
+    </ul>
+</nav>
+{% endif %}
         </ul>
     </nav>
     {% endif %}
