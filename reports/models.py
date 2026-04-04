@@ -96,7 +96,7 @@ class FuelTransaction(models.Model):
         ('vehicle', 'سيارة'),
     ]
 
-    fuel_type = models.CharField(max_length=13, choices=FUEL_TYPES, default='gasoline')
+    fuel_type = models.CharField(max_length=13, choices=FUEL_TYPES, default='Solar')
     type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     date = models.DateField()
     quantity = models.FloatField()

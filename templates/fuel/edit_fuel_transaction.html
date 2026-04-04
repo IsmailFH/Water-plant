@@ -33,6 +33,11 @@
         </div>
 
         <div class="col-md-4">
+            <label class="form-label">اليوم</label>
+            <input type="text" id="day_display" class="form-control" readonly>
+        </div>
+
+        <div class="col-md-4">
             <label for="{{ form.type.id_for_label }}" class="form-label">نوع العملية</label>
             {{ form.type }}
             {% if form.type.errors %}
@@ -72,8 +77,16 @@
             {% endif %}
         </div>
 
+        <div class="col-md-4" id="vehicle_type_wrapper" style="display:none;">
+            <label for="{{ form.vehicle_type.id_for_label }}" class="form-label">نوع السيارة</label>
+            {{ form.vehicle_type }}
+            {% if form.vehicle_type.errors %}
+                <div class="text-danger">{{ form.vehicle_type.errors }}</div>
+            {% endif %}
+        </div>
+
         <div id="motor_fields" class="row g-3" style="display:none;">
-            <div class="col-md-3">
+            <div class="col-md-3" id="start_time_wrapper">
                 <label for="{{ form.start_time.id_for_label }}" class="form-label">ساعة التشغيل</label>
                 {{ form.start_time }}
                 {% if form.start_time.errors %}
@@ -81,7 +94,7 @@
                 {% endif %}
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-3" id="end_time_wrapper">
                 <label for="{{ form.end_time.id_for_label }}" class="form-label">ساعة الإيقاف</label>
                 {{ form.end_time }}
                 {% if form.end_time.errors %}
@@ -89,7 +102,7 @@
                 {% endif %}
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-3" id="meter_before_wrapper">
                 <label for="{{ form.meter_before.id_for_label }}" class="form-label">القراءة قبل</label>
                 {{ form.meter_before }}
                 {% if form.meter_before.errors %}
@@ -97,13 +110,21 @@
                 {% endif %}
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-3" id="meter_after_wrapper">
                 <label for="{{ form.meter_after.id_for_label }}" class="form-label">القراءة بعد</label>
                 {{ form.meter_after }}
                 {% if form.meter_after.errors %}
                     <div class="text-danger">{{ form.meter_after.errors }}</div>
                 {% endif %}
             </div>
+        </div>
+
+        <div class="col-md-12" id="notes_wrapper" style="display:none;">
+            <label for="{{ form.notes.id_for_label }}" class="form-label">ملاحظات</label>
+            {{ form.notes }}
+            {% if form.notes.errors %}
+                <div class="text-danger">{{ form.notes.errors }}</div>
+            {% endif %}
         </div>
 
         <div class="col-12 text-end mt-4">
@@ -120,21 +141,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const usageWrapper = document.getElementById('usage_type_wrapper');
     const driverWrapper = document.getElementById('driver_wrapper');
+    const vehicleTypeWrapper = document.getElementById('vehicle_type_wrapper');
+    const notesWrapper = document.getElementById('notes_wrapper');
     const motorFields = document.getElementById('motor_fields');
 
     const startTimeField = document.getElementById('id_start_time');
     const endTimeField = document.getElementById('id_end_time');
     const meterBeforeField = document.getElementById('id_meter_before');
     const meterAfterField = document.getElementById('id_meter_after');
+    const vehicleTypeField = document.getElementById('id_vehicle_type');
+    const notesField = document.getElementById('id_notes');
+    const dateField = document.getElementById('id_date');
+    const dayDisplay = document.getElementById('day_display');
 
-    const startTimeWrapper = startTimeField ? startTimeField.closest('.col-md-3') : null;
-    const endTimeWrapper = endTimeField ? endTimeField.closest('.col-md-3') : null;
-    const meterBeforeWrapper = meterBeforeField ? meterBeforeField.closest('.col-md-3') : null;
-    const meterAfterWrapper = meterAfterField ? meterAfterField.closest('.col-md-3') : null;
+    const startTimeWrapper = document.getElementById('start_time_wrapper');
+    const endTimeWrapper = document.getElementById('end_time_wrapper');
+    const meterBeforeWrapper = document.getElementById('meter_before_wrapper');
+    const meterAfterWrapper = document.getElementById('meter_after_wrapper');
+
+    const arabicDays = {
+        'Sunday': 'الأحد',
+        'Monday': 'الاثنين',
+        'Tuesday': 'الثلاثاء',
+        'Wednesday': 'الأربعاء',
+        'Thursday': 'الخميس',
+        'Friday': 'الجمعة',
+        'Saturday': 'السبت'
+    };
+
+    function updateDayFromDate() {
+        if (!dateField || !dayDisplay) return;
+
+        const value = dateField.value;
+        if (!value) {
+            dayDisplay.value = '';
+            return;
+        }
+
+        const date = new Date(value);
+        const englishDay = date.toLocaleDateString('en-US', { weekday: 'long' });
+        dayDisplay.value = arabicDays[englishDay] || '';
+    }
 
     function clearVehicleFields() {
         const driverField = document.getElementById('id_driver');
         if (driverField) driverField.value = '';
+        if (vehicleTypeField) vehicleTypeField.value = '';
     }
 
     function clearMotorTimeFields() {
@@ -147,12 +199,18 @@ document.addEventListener('DOMContentLoaded', function () {
         if (meterAfterField) meterAfterField.value = '';
     }
 
+    function clearNotesField() {
+        if (notesField) notesField.value = '';
+    }
+
     function toggleFields(resetHiddenFields = false) {
         const transactionType = typeField ? typeField.value : '';
         const usageType = usageField ? usageField.value : '';
 
         usageWrapper.style.display = 'none';
         driverWrapper.style.display = 'none';
+        vehicleTypeWrapper.style.display = 'none';
+        notesWrapper.style.display = 'none';
         motorFields.style.display = 'none';
 
         if (startTimeWrapper) startTimeWrapper.style.display = 'none';
@@ -162,9 +220,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (transactionType === 'out') {
             usageWrapper.style.display = 'block';
+            notesWrapper.style.display = 'block';
 
             if (usageType === 'vehicle') {
                 driverWrapper.style.display = 'block';
+                vehicleTypeWrapper.style.display = 'block';
                 motorFields.style.display = 'flex';
 
                 if (meterBeforeWrapper) meterBeforeWrapper.style.display = 'block';
@@ -189,6 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearVehicleFields();
                     clearMotorTimeFields();
                     clearMeterFields();
+                    clearNotesField();
                 }
             }
         } else {
@@ -196,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 clearVehicleFields();
                 clearMotorTimeFields();
                 clearMeterFields();
+                clearNotesField();
                 if (usageField) usageField.value = '';
             }
         }
@@ -213,6 +275,11 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    if (dateField) {
+        dateField.addEventListener('change', updateDayFromDate);
+    }
+
+    updateDayFromDate();
     toggleFields(false);
 });
 </script>
