@@ -66,6 +66,8 @@
                     <th>الكمية</th>
                     <th>الجهة</th>
                     <th>السائق</th>
+                    <th>نوع السيارة</th>
+<th>ملاحظات</th>
                     <th>قراءة قبل</th>
                     <th>قراءة بعد</th>
                     <th>الفرق</th>
@@ -106,7 +108,8 @@
                             -
                         {% endif %}
                     </td>
-
+<td>{{ t.vehicle_type|default:"-" }}</td>
+<td>{{ t.notes|default:"-" }}</td>
                     <td>{{ t.meter_before|default:"-" }}</td>
                     <td>{{ t.meter_after|default:"-" }}</td>
                     <td>{{ t.odometer_difference|default:"-" }}</td>

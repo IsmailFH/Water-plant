@@ -102,7 +102,8 @@ class FuelTransaction(models.Model):
     quantity = models.FloatField()
     fuel_transaction_source = models.CharField(max_length=13, choices=FUEL_TRANSACTION_TYPES, default='خاص')
     total_cost = models.FloatField(blank=True, null=True)
-
+    vehicle_type = models.CharField(max_length=255, null=True, blank=True, verbose_name="نوع السيارة")
+    notes = models.TextField(null=True, blank=True, verbose_name="ملاحظات")
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
 

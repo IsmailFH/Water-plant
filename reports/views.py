@@ -451,6 +451,8 @@ def fuel_transaction_list(request):
             'run_time_hours': run_time_hours,
             'usage_type': t.usage_type,
             'driver': t.driver,
+            'vehicle_type': t.vehicle_type,
+            'notes': t.notes,
             'start_time': t.start_time,
             'end_time': t.end_time,
             'meter_before': t.meter_before,

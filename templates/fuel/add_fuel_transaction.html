@@ -108,6 +108,22 @@
                 <div class="text-danger">{{ form.driver.errors }}</div>
             {% endif %}
         </div>
+<div class="col-md-4" id="vehicle_type_wrapper" style="display:none;">
+    <label for="{{ form.vehicle_type.id_for_label }}" class="form-label">نوع السيارة</label>
+    {{ form.vehicle_type }}
+    {% if form.vehicle_type.errors %}
+        <div class="text-danger">{{ form.vehicle_type.errors }}</div>
+    {% endif %}
+</div>
+
+<div class="col-md-12" id="notes_wrapper" style="display:none;">
+    <label for="{{ form.notes.id_for_label }}" class="form-label">ملاحظات</label>
+    {{ form.notes }}
+    {% if form.notes.errors %}
+        <div class="text-danger">{{ form.notes.errors }}</div>
+    {% endif %}
+</div>
+
         </div>
 
         <div class="col-12 text-end mt-4">
@@ -118,6 +134,10 @@
 </div>
 
 <script>
+    const vehicleTypeWrapper = document.getElementById('vehicle_type_wrapper');
+const notesWrapper = document.getElementById('notes_wrapper');
+const vehicleTypeField = document.getElementById('id_vehicle_type');
+const notesField = document.getElementById('id_notes');
 document.addEventListener('DOMContentLoaded', function () {
     const typeField = document.getElementById('id_type');
     const usageField = document.getElementById('id_usage_type');
@@ -135,7 +155,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const endTimeWrapper = endTimeField ? endTimeField.closest('.col-md-3') : null;
     const meterBeforeWrapper = meterBeforeField ? meterBeforeField.closest('.col-md-3') : null;
     const meterAfterWrapper = meterAfterField ? meterAfterField.closest('.col-md-3') : null;
-
+    function clearVehicleExtraFields() {
+    if (vehicleTypeField) vehicleTypeField.value = '';
+    if (notesField) notesField.value = '';
+}
     function clearVehicleFields() {
         const driverField = document.getElementById('id_driver');
         if (driverField) driverField.value = '';
@@ -152,6 +175,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function toggleFields(resetHiddenFields = false) {
+    usageWrapper.style.display = 'none';
+driverWrapper.style.display = 'none';
+motorFields.style.display = 'none';
+if (vehicleTypeWrapper) vehicleTypeWrapper.style.display = 'none';
+if (notesWrapper) notesWrapper.style.display = 'none';
         const transactionType = typeField ? typeField.value : '';
         const usageType = usageField ? usageField.value : '';
 
@@ -168,6 +196,10 @@ document.addEventListener('DOMContentLoaded', function () {
             usageWrapper.style.display = 'block';
 
             if (usageType === 'vehicle') {
+            driverWrapper.style.display = 'block';
+motorFields.style.display = 'flex';
+if (vehicleTypeWrapper) vehicleTypeWrapper.style.display = 'block';
+if (notesWrapper) notesWrapper.style.display = 'block';
                 driverWrapper.style.display = 'block';
                 motorFields.style.display = 'flex';
 
@@ -178,6 +210,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearMotorTimeFields();
                 }
             } else if (usageType === 'motor') {
+            if (notesWrapper) notesWrapper.style.display = 'block';
+if (resetHiddenFields) {
+    clearVehicleFields();
+    clearVehicleExtraFields();
+}
                 motorFields.style.display = 'flex';
 
                 if (startTimeWrapper) startTimeWrapper.style.display = 'block';
@@ -189,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     clearVehicleFields();
                 }
             } else {
+            clearVehicleExtraFields();
                 if (resetHiddenFields) {
                     clearVehicleFields();
                     clearMotorTimeFields();
