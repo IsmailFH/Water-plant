@@ -118,14 +118,13 @@
                 <td>{{ t.meter_after|default:"-" }}</td>
                 <td>{{ t.meter_difference|default:"-" }}</td>
 
-                <td>
-                    {% if t.date_difference is not None %}
-                        {{ t.date_difference }} يوم
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-
+<td>
+    {% if t.date_difference is not None %}
+        {{ t.date_difference }} يوم
+    {% else %}
+        -
+    {% endif %}
+</td>
                 <td>
                     <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
 

@@ -366,12 +366,17 @@ def add_fuel_transaction(request):
         form = FuelTransactionForm()
     return render(request, 'fuel/add_fuel_transaction.html', {'form': form})
 
+
 @login_required
 @manager_only
 def fuel_transaction_list(request):
     def get_quantity(fuel_type, trans_type):
-        result = FuelTransaction.objects.filter(fuel_type=fuel_type, type=trans_type).aggregate(total=Sum('quantity'))
+        result = FuelTransaction.objects.filter(
+            fuel_type=fuel_type,
+            type=trans_type
+        ).aggregate(total=Sum('quantity'))
         return result['total'] or 0
+
     transactions = FuelTransaction.objects.all().order_by('date')
 
     if request.GET.get('start_date') and request.GET.get('end_date'):
@@ -390,7 +395,9 @@ def fuel_transaction_list(request):
     transaction_type_filter = request.GET.get('transaction_type')
     if transaction_type_filter:
         transactions = transactions.filter(type=transaction_type_filter)
+
     transactions = transactions.order_by('-date')
+
     total_costs = {
         'Solar': FuelTransaction.objects.filter(fuel_type='Solar', type='in').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
         'gasoline': FuelTransaction.objects.filter(fuel_type='gasoline', type='in').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
@@ -399,7 +406,6 @@ def fuel_transaction_list(request):
 
     total_in_quantity = transactions.filter(type='in').aggregate(total=Sum('quantity'))['total'] or 0
     total_out_quantity = transactions.filter(type='out').aggregate(total=Sum('quantity'))['total'] or 0
-
     total_in_cost = transactions.filter(type='in').aggregate(total=Sum('total_cost'))['total'] or 0
 
     balance = {
@@ -415,7 +421,6 @@ def fuel_transaction_list(request):
 
     total_hours = total_run_time_seconds // 3600
     total_minutes = (total_run_time_seconds % 3600) // 60
-
     total_run_time_display = f"{total_hours} ساعة {total_minutes} دقيقة"
 
     processed = []
@@ -424,6 +429,7 @@ def fuel_transaction_list(request):
 
     for t in transactions:
         fuel = t.fuel_type
+
         if t.type == 'in':
             current_balances[fuel] += t.quantity
         else:
@@ -481,15 +487,17 @@ def fuel_transaction_list(request):
 
         if driver_id:
             previous_dates_by_driver[driver_id] = t.date
-        # ✨ Pagination
+
     paginator = Paginator(processed, 20)
     page = request.GET.get('page')
+
     try:
         processed = paginator.page(page)
     except PageNotAnInteger:
         processed = paginator.page(1)
     except EmptyPage:
         processed = paginator.page(paginator.num_pages)
+
     context = {
         'transactions': processed,
         'total_in_quantity': total_in_quantity,
@@ -497,7 +505,7 @@ def fuel_transaction_list(request):
         'total_in_cost': total_in_cost,
         'total_run_time_display': total_run_time_display,
         'final_balance': balance,
-        'total_costs':total_costs
+        'total_costs': total_costs,
     }
 
     return render(request, 'fuel/fuel_transaction_list.html', context)
