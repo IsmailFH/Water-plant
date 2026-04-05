@@ -10,7 +10,6 @@
     </div>
 
     <form method="get" class="row g-3 mb-4 bg-light p-3 rounded shadow-sm">
-
         <div class="col-md-3">
             <label class="form-label">من تاريخ</label>
             <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control">
@@ -25,9 +24,9 @@
             <label class="form-label">نوع المحروقات</label>
             <select name="fuel_type" class="form-control">
                 <option value="">الكل</option>
-                <option value="Solar">سولار</option>
-                <option value="gasoline">بنزين</option>
-                <option value="oil">زيت</option>
+                <option value="Solar" {% if request.GET.fuel_type == 'Solar' %}selected{% endif %}>سولار</option>
+                <option value="gasoline" {% if request.GET.fuel_type == 'gasoline' %}selected{% endif %}>بنزين</option>
+                <option value="oil" {% if request.GET.fuel_type == 'oil' %}selected{% endif %}>زيت</option>
             </select>
         </div>
 
@@ -35,8 +34,8 @@
             <label class="form-label">نوع العملية</label>
             <select name="transaction_type" class="form-control">
                 <option value="">الكل</option>
-                <option value="in">وارد</option>
-                <option value="out">صادر</option>
+                <option value="in" {% if request.GET.transaction_type == 'in' %}selected{% endif %}>وارد</option>
+                <option value="out" {% if request.GET.transaction_type == 'out' %}selected{% endif %}>صادر</option>
             </select>
         </div>
 
@@ -44,106 +43,105 @@
             <label class="form-label">الجهة</label>
             <select name="usage_type" class="form-control">
                 <option value="">الكل</option>
-                <option value="motor">ماتور</option>
-                <option value="vehicle">سيارة</option>
+                <option value="motor" {% if request.GET.usage_type == 'motor' %}selected{% endif %}>ماتور</option>
+                <option value="vehicle" {% if request.GET.usage_type == 'vehicle' %}selected{% endif %}>سيارة</option>
             </select>
         </div>
 
         <div class="col-12 text-end">
             <button type="submit" class="btn btn-primary">فلترة</button>
+            <a href="{% url 'fuel_transaction_list' %}" class="btn btn-secondary">إعادة ضبط</a>
         </div>
     </form>
 
-{% if transactions %}
-<div class="table-responsive">
-    <table class="table table-bordered text-center">
-        <thead class="table-dark">
-            <tr>
-                <th>التاريخ</th>
-                <th>اليوم</th>
-                <th>نوع العملية</th>
-                <th>نوع المحروقات</th>
-                <th>الكمية</th>
-                <th>الجهة</th>
-                <th>السائق</th>
-                <th>نوع السيارة</th>
-                <th>ملاحظات</th>
-                <th>قراءة قبل</th>
-                <th>قراءة بعد</th>
-                <th>الفرق</th>
-                <th>فرق الأيام</th>
-                <th>إجراءات</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for t in transactions %}
-            <tr>
-                <td>{{ t.date }}</td>
-                <td>{{ t.day }}</td>
+    {% if transactions %}
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>التاريخ</th>
+                    <th>اليوم</th>
+                    <th>نوع العملية</th>
+                    <th>نوع المحروقات</th>
+                    <th>الكمية</th>
+                    <th>الجهة</th>
+                    <th>السائق</th>
+                    <th>نوع السيارة</th>
+                    <th>ملاحظات</th>
+                    <th>قراءة قبل</th>
+                    <th>قراءة بعد</th>
+                    <th>الفرق</th>
+                    <th>فرق الأيام</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td>{{ t.day }}</td>
 
-                <td>
-                    {% if t.type == 'in' %}
-                        وارد
-                    {% elif t.type == 'out' %}
-                        صادر
-                    {% else %}
-                        {{ t.type }}
-                    {% endif %}
-                </td>
+                    <td>
+                        {% if t.type == 'in' %}
+                            وارد
+                        {% elif t.type == 'out' %}
+                            صادر
+                        {% else %}
+                            {{ t.type }}
+                        {% endif %}
+                    </td>
 
-                <td>{{ t.fuel_type }}</td>
-                <td>{{ t.quantity }}</td>
+                    <td>{{ t.fuel_type }}</td>
+                    <td>{{ t.quantity }}</td>
 
-                <td>
-                    {% if t.usage_type == 'motor' %}
-                        ماتور
-                    {% elif t.usage_type == 'vehicle' %}
-                        سيارة
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
+                    <td>
+                        {% if t.usage_type == 'motor' %}
+                            ماتور
+                        {% elif t.usage_type == 'vehicle' %}
+                            سيارة
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
 
-                <td>
-                    {% if t.driver %}
-                        {{ t.driver.name }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
+                    <td>
+                        {% if t.driver %}
+                            {{ t.driver.name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
 
-                <td>{{ t.vehicle_type|default:"-" }}</td>
-                <td>{{ t.notes|default:"-" }}</td>
-                <td>{{ t.meter_before|default:"-" }}</td>
-                <td>{{ t.meter_after|default:"-" }}</td>
-                <td>{{ t.meter_difference|default:"-" }}</td>
+                    <td>{{ t.vehicle_type|default:"-" }}</td>
+                    <td>{{ t.notes|default:"-" }}</td>
+                    <td>{{ t.meter_before|default:"-" }}</td>
+                    <td>{{ t.meter_after|default:"-" }}</td>
+                    <td>{{ t.meter_difference|default:"-" }}</td>
 
-<td>
-    {% if t.date_difference is not None %}
-        {{ t.date_difference }} يوم
+                    <td>
+                        {% if t.date_difference is not None %}
+                            {{ t.date_difference }} يوم
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
+                        <form method="post" action="{% url 'delete_fuel_record' t.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
+                                حذف
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
-        -
-    {% endif %}
-</td>
-                <td>
-                    <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
-
-                    <form method="post" action="{% url 'delete_fuel_record' t.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
-                            حذف
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% else %}
-<div class="alert alert-info text-center">لا توجد عمليات محروقات</div>
-{% endif %}
-        <div class="alert alert-info text-center">لا توجد عمليات محروقات</div>
+    <div class="alert alert-info text-center">لا توجد عمليات محروقات</div>
     {% endif %}
 </div>
 {% endblock %}
