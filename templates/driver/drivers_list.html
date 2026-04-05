@@ -33,7 +33,16 @@
                 <tr>
                     <td>{{ record.name }}</td>
                     <td>{{ record.id_number }}</td>
+<td>
+    <a href="{% url 'edit_driver' driver.id %}" class="btn btn-sm btn-primary">تعديل</a>
 
+    <form method="post" action="{% url 'delete_driver' driver.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
+            حذف
+        </button>
+    </form>
+</td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="7">لا يوجد سجلات لعرضها</td></tr>

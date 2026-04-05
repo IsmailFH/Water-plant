@@ -113,6 +113,7 @@ class FuelTransaction(models.Model):
     meter_before = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة قبل")
     meter_after = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة بعد")
 
+    @property
     def odometer_difference(self):
         if self.meter_before is not None and self.meter_after is not None:
             return self.meter_after - self.meter_before

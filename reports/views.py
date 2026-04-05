@@ -420,6 +420,8 @@ def fuel_transaction_list(request):
 
     processed = []
     current_balances = {'Solar': 0, 'gasoline': 0, 'oil': 0}
+    previous_dates_by_driver = {}
+
     for t in transactions:
         fuel = t.fuel_type
         if t.type == 'in':
@@ -437,6 +439,13 @@ def fuel_transaction_list(request):
             run_time_hours = f"{hours} ساعات {minutes} دقيقة"
         else:
             run_time_hours = "لا يوجد"
+
+        driver_id = t.driver.id if t.driver else None
+
+        if driver_id and driver_id in previous_dates_by_driver:
+            date_difference = abs((previous_dates_by_driver[driver_id] - t.date).days)
+        else:
+            date_difference = None
 
         processed.append({
             'id': t.id,
@@ -462,7 +471,16 @@ def fuel_transaction_list(request):
                 if t.meter_before is not None and t.meter_after is not None
                 else None
             ),
+            'meter_difference': (
+                t.meter_after - t.meter_before
+                if t.meter_before is not None and t.meter_after is not None
+                else None
+            ),
+            'date_difference': date_difference,
         })
+
+        if driver_id:
+            previous_dates_by_driver[driver_id] = t.date
         # ✨ Pagination
     paginator = Paginator(processed, 20)
     page = request.GET.get('page')
@@ -759,6 +777,34 @@ def drivers_list(request):
     return render(request, 'driver/drivers_list.html', {
         'records': records,
     })
+
+
+
+@login_required
+@manager_only
+def edit_driver(request, pk):
+    driver = get_object_or_404(Driver, pk=pk)
+
+    if request.method == 'POST':
+        form = DriverForm(request.POST, instance=driver)
+        if form.is_valid():
+            form.save()
+            return redirect('driver_list')
+    else:
+        form = DriverForm(instance=driver)
+
+    return render(request, 'drivers/edit_driver.html', {'form': form, 'driver': driver})
+
+
+@login_required
+@manager_only
+@require_POST
+def delete_driver(request, pk):
+    driver = get_object_or_404(Driver, pk=pk)
+    driver.delete()
+    return redirect('driver_list')
+
+
 
 @login_required
 @manager_only

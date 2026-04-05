@@ -43,6 +43,9 @@ urlpatterns = [
     path('add_driver/', views.add_driver, name='add_driver'),
     path('drivers_list/', views.drivers_list, name='drivers_list'),
 
+    path('drivers/<int:pk>/edit/', views.edit_driver, name='edit_driver'),
+    path('drivers/<int:pk>/delete/', views.delete_driver, name='delete_driver'),
+
     path('add_maintenance/', views.add_maintenance, name='add_maintenance'),
     path('maintenance_list/', views.maintenance_list, name='maintenance_list'),
     path('add_options/', views.add_options, name='add_options'),

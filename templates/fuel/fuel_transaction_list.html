@@ -54,82 +54,96 @@
         </div>
     </form>
 
-    {% if transactions %}
-    <div class="table-responsive">
-        <table class="table table-bordered text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>التاريخ</th>
-                    <th>اليوم</th>
-                    <th>نوع العملية</th>
-                    <th>نوع المحروقات</th>
-                    <th>الكمية</th>
-                    <th>الجهة</th>
-                    <th>السائق</th>
-                    <th>نوع السيارة</th>
-<th>ملاحظات</th>
-                    <th>قراءة قبل</th>
-                    <th>قراءة بعد</th>
-                    <th>الفرق</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for t in transactions %}
-                <tr>
-                    <td>{{ t.date }}</td>
-                    <td>{{ t.day }}</td>
-                    <td>
-    {% if t.type == 'in' %}
-        وارد
-    {% elif t.type == 'out' %}
-        صادر
-    {% else %}
-        {{ t.type }}
-    {% endif %}
-</td>
-                    <td>{{ t.fuel_type }}</td>
-                    <td>{{ t.quantity }}</td>
+{% if transactions %}
+<div class="table-responsive">
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>التاريخ</th>
+                <th>اليوم</th>
+                <th>نوع العملية</th>
+                <th>نوع المحروقات</th>
+                <th>الكمية</th>
+                <th>الجهة</th>
+                <th>السائق</th>
+                <th>نوع السيارة</th>
+                <th>ملاحظات</th>
+                <th>قراءة قبل</th>
+                <th>قراءة بعد</th>
+                <th>الفرق</th>
+                <th>فرق الأيام</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t.date }}</td>
+                <td>{{ t.day }}</td>
 
-                    <td>
-                        {% if t.usage_type == 'motor' %}
-                            ماتور
-                        {% elif t.usage_type == 'vehicle' %}
-                            سيارة
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
+                <td>
+                    {% if t.type == 'in' %}
+                        وارد
+                    {% elif t.type == 'out' %}
+                        صادر
+                    {% else %}
+                        {{ t.type }}
+                    {% endif %}
+                </td>
 
-                    <td>
-                        {% if t.driver %}
-                            {{ t.driver.name }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-<td>{{ t.vehicle_type|default:"-" }}</td>
-<td>{{ t.notes|default:"-" }}</td>
-                    <td>{{ t.meter_before|default:"-" }}</td>
-                    <td>{{ t.meter_after|default:"-" }}</td>
-                    <td>{{ t.odometer_difference|default:"-" }}</td>
+                <td>{{ t.fuel_type }}</td>
+                <td>{{ t.quantity }}</td>
 
-<td>
-    <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
+                <td>
+                    {% if t.usage_type == 'motor' %}
+                        ماتور
+                    {% elif t.usage_type == 'vehicle' %}
+                        سيارة
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
 
-    <form method="post" action="{% url 'delete_fuel_record' t.id %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
-            حذف
-        </button>
-    </form>
-</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
+                <td>
+                    {% if t.driver %}
+                        {{ t.driver.name }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>{{ t.vehicle_type|default:"-" }}</td>
+                <td>{{ t.notes|default:"-" }}</td>
+                <td>{{ t.meter_before|default:"-" }}</td>
+                <td>{{ t.meter_after|default:"-" }}</td>
+                <td>{{ t.meter_difference|default:"-" }}</td>
+
+                <td>
+                    {% if t.date_difference is not None %}
+                        {{ t.date_difference }} يوم
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>
+                    <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
+
+                    <form method="post" action="{% url 'delete_fuel_record' t.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
+                            حذف
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">لا توجد عمليات محروقات</div>
+{% endif %}
         <div class="alert alert-info text-center">لا توجد عمليات محروقات</div>
     {% endif %}
 </div>

@@ -26,7 +26,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'after_login'
 LOGOUT_REDIRECT_URL = 'login'
-SESSION_COOKIE_AGE =300
+SESSION_COOKIE_AGE =10000
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
