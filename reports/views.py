@@ -422,10 +422,10 @@ def fuel_transaction_list(request):
     total_hours = total_run_time_seconds // 3600
     total_minutes = (total_run_time_seconds % 3600) // 60
     total_run_time_display = f"{total_hours} ساعة {total_minutes} دقيقة"
-
     processed = []
     current_balances = {'Solar': 0, 'gasoline': 0, 'oil': 0}
     previous_dates_by_driver = {}
+    previous_meter_by_driver = {}
 
     for t in transactions:
         fuel = t.fuel_type
@@ -448,10 +448,23 @@ def fuel_transaction_list(request):
 
         driver_id = t.driver.id if t.driver else None
 
+        # فرق الأيام لنفس السائق
         if driver_id and driver_id in previous_dates_by_driver:
             date_difference = abs((previous_dates_by_driver[driver_id] - t.date).days)
         else:
             date_difference = None
+
+        # القراءة السابقة لنفس السائق
+        if driver_id and driver_id in previous_meter_by_driver:
+            previous_meter = previous_meter_by_driver[driver_id]
+        else:
+            previous_meter = 0
+
+        # فرق القراءة
+        if t.meter_reading is not None:
+            meter_difference = t.meter_reading - previous_meter
+        else:
+            meter_difference = None
 
         processed.append({
             'id': t.id,
@@ -470,23 +483,18 @@ def fuel_transaction_list(request):
             'notes': t.notes,
             'start_time': t.start_time,
             'end_time': t.end_time,
-            'meter_before': t.meter_before,
-            'meter_after': t.meter_after,
-            'odometer_difference': (
-                t.meter_after - t.meter_before
-                if t.meter_before is not None and t.meter_after is not None
-                else None
-            ),
-            'meter_difference': (
-                t.meter_after - t.meter_before
-                if t.meter_before is not None and t.meter_after is not None
-                else None
-            ),
+
+            # الجديد
+            'previous_meter': previous_meter if driver_id else 0,
+            'meter_reading': t.meter_reading,
+            'meter_difference': meter_difference,
             'date_difference': date_difference,
         })
 
         if driver_id:
             previous_dates_by_driver[driver_id] = t.date
+            if t.meter_reading is not None:
+                previous_meter_by_driver[driver_id] = t.meter_reading
 
     paginator = Paginator(processed, 20)
     page = request.GET.get('page')

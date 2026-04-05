@@ -68,10 +68,10 @@
                     <th>السائق</th>
                     <th>نوع السيارة</th>
                     <th>ملاحظات</th>
-                    <th>قراءة قبل</th>
-                    <th>قراءة بعد</th>
-                    <th>الفرق</th>
-                    <th>فرق الأيام</th>
+<th>القراءة السابقة</th>
+<th>القراءة الحالية</th>
+<th>الفرق</th>
+<th>فرق الأيام</th>
                     <th>إجراءات</th>
                 </tr>
             </thead>
@@ -114,17 +114,16 @@
 
                     <td>{{ t.vehicle_type|default:"-" }}</td>
                     <td>{{ t.notes|default:"-" }}</td>
-                    <td>{{ t.meter_before|default:"-" }}</td>
-                    <td>{{ t.meter_after|default:"-" }}</td>
-                    <td>{{ t.meter_difference|default:"-" }}</td>
-
-                    <td>
-                        {% if t.date_difference is not None %}
-                            {{ t.date_difference }} يوم
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
+<td>{{ t.previous_meter|default:"0" }}</td>
+<td>{{ t.meter_reading|default:"-" }}</td>
+<td>{{ t.meter_difference|default:"-" }}</td>
+<td>
+    {% if t.date_difference is not None %}
+        {{ t.date_difference }} يوم
+    {% else %}
+        -
+    {% endif %}
+</td>
 
                     <td>
                         <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>

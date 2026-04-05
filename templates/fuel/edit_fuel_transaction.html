@@ -102,21 +102,13 @@
                 {% endif %}
             </div>
 
-            <div class="col-md-3" id="meter_before_wrapper">
-                <label for="{{ form.meter_before.id_for_label }}" class="form-label">القراءة قبل</label>
-                {{ form.meter_before }}
-                {% if form.meter_before.errors %}
-                    <div class="text-danger">{{ form.meter_before.errors }}</div>
-                {% endif %}
-            </div>
-
-            <div class="col-md-3" id="meter_after_wrapper">
-                <label for="{{ form.meter_after.id_for_label }}" class="form-label">القراءة بعد</label>
-                {{ form.meter_after }}
-                {% if form.meter_after.errors %}
-                    <div class="text-danger">{{ form.meter_after.errors }}</div>
-                {% endif %}
-            </div>
+<div class="col-md-3" id="meter_reading_wrapper">
+    <label for="{{ form.meter_reading.id_for_label }}" class="form-label">القراءة</label>
+    {{ form.meter_reading }}
+    {% if form.meter_reading.errors %}
+        <div class="text-danger">{{ form.meter_reading.errors }}</div>
+    {% endif %}
+</div>
         </div>
 
         <div class="col-md-12" id="notes_wrapper" style="display:none;">
@@ -136,6 +128,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
     const typeField = document.getElementById('id_type');
     const usageField = document.getElementById('id_usage_type');
 
@@ -145,141 +138,88 @@ document.addEventListener('DOMContentLoaded', function () {
     const notesWrapper = document.getElementById('notes_wrapper');
     const motorFields = document.getElementById('motor_fields');
 
-    const startTimeField = document.getElementById('id_start_time');
-    const endTimeField = document.getElementById('id_end_time');
-    const meterBeforeField = document.getElementById('id_meter_before');
-    const meterAfterField = document.getElementById('id_meter_after');
-    const vehicleTypeField = document.getElementById('id_vehicle_type');
-    const notesField = document.getElementById('id_notes');
-    const dateField = document.getElementById('id_date');
-    const dayDisplay = document.getElementById('day_display');
-
     const startTimeWrapper = document.getElementById('start_time_wrapper');
     const endTimeWrapper = document.getElementById('end_time_wrapper');
-    const meterBeforeWrapper = document.getElementById('meter_before_wrapper');
-    const meterAfterWrapper = document.getElementById('meter_after_wrapper');
 
-    const arabicDays = {
-        'Sunday': 'الأحد',
-        'Monday': 'الاثنين',
-        'Tuesday': 'الثلاثاء',
-        'Wednesday': 'الأربعاء',
-        'Thursday': 'الخميس',
-        'Friday': 'الجمعة',
-        'Saturday': 'السبت'
-    };
-
-    function updateDayFromDate() {
-        if (!dateField || !dayDisplay) return;
-
-        const value = dateField.value;
-        if (!value) {
-            dayDisplay.value = '';
-            return;
-        }
-
-        const date = new Date(value);
-        const englishDay = date.toLocaleDateString('en-US', { weekday: 'long' });
-        dayDisplay.value = arabicDays[englishDay] || '';
-    }
+    const meterReadingWrapper = document.getElementById('meter_reading_wrapper');
+    const meterReadingField = document.getElementById('id_meter_reading');
 
     function clearVehicleFields() {
         const driverField = document.getElementById('id_driver');
+        const vehicleTypeField = document.getElementById('id_vehicle_type');
+
         if (driverField) driverField.value = '';
         if (vehicleTypeField) vehicleTypeField.value = '';
     }
 
-    function clearMotorTimeFields() {
-        if (startTimeField) startTimeField.value = '';
-        if (endTimeField) endTimeField.value = '';
+    function clearMotorFields() {
+        const startTime = document.getElementById('id_start_time');
+        const endTime = document.getElementById('id_end_time');
+
+        if (startTime) startTime.value = '';
+        if (endTime) endTime.value = '';
     }
 
-    function clearMeterFields() {
-        if (meterBeforeField) meterBeforeField.value = '';
-        if (meterAfterField) meterAfterField.value = '';
+    function clearMeter() {
+        if (meterReadingField) meterReadingField.value = '';
     }
 
-    function clearNotesField() {
-        if (notesField) notesField.value = '';
-    }
+    function toggleFields(reset = false) {
 
-    function toggleFields(resetHiddenFields = false) {
-        const transactionType = typeField ? typeField.value : '';
-        const usageType = usageField ? usageField.value : '';
+        const type = typeField ? typeField.value : '';
+        const usage = usageField ? usageField.value : '';
 
-        usageWrapper.style.display = 'none';
-        driverWrapper.style.display = 'none';
-        vehicleTypeWrapper.style.display = 'none';
-        notesWrapper.style.display = 'none';
-        motorFields.style.display = 'none';
+        // إخفاء الكل أولاً
+        if (usageWrapper) usageWrapper.style.display = 'none';
+        if (driverWrapper) driverWrapper.style.display = 'none';
+        if (vehicleTypeWrapper) vehicleTypeWrapper.style.display = 'none';
+        if (notesWrapper) notesWrapper.style.display = 'none';
+        if (motorFields) motorFields.style.display = 'none';
 
         if (startTimeWrapper) startTimeWrapper.style.display = 'none';
         if (endTimeWrapper) endTimeWrapper.style.display = 'none';
-        if (meterBeforeWrapper) meterBeforeWrapper.style.display = 'none';
-        if (meterAfterWrapper) meterAfterWrapper.style.display = 'none';
+        if (meterReadingWrapper) meterReadingWrapper.style.display = 'none';
 
-        if (transactionType === 'out') {
-            usageWrapper.style.display = 'block';
-            notesWrapper.style.display = 'block';
+        // إذا صادر
+        if (type === 'out') {
 
-            if (usageType === 'vehicle') {
-                driverWrapper.style.display = 'block';
-                vehicleTypeWrapper.style.display = 'block';
-                motorFields.style.display = 'flex';
+            if (usageWrapper) usageWrapper.style.display = 'block';
+            if (notesWrapper) notesWrapper.style.display = 'block';
+            if (meterReadingWrapper) meterReadingWrapper.style.display = 'block';
 
-                if (meterBeforeWrapper) meterBeforeWrapper.style.display = 'block';
-                if (meterAfterWrapper) meterAfterWrapper.style.display = 'block';
+            if (usage === 'vehicle') {
+                if (driverWrapper) driverWrapper.style.display = 'block';
+                if (vehicleTypeWrapper) vehicleTypeWrapper.style.display = 'block';
 
-                if (resetHiddenFields) {
-                    clearMotorTimeFields();
-                }
-            } else if (usageType === 'motor') {
-                motorFields.style.display = 'flex';
+                if (reset) clearMotorFields();
+
+            } else if (usage === 'motor') {
+
+                if (motorFields) motorFields.style.display = 'flex';
 
                 if (startTimeWrapper) startTimeWrapper.style.display = 'block';
                 if (endTimeWrapper) endTimeWrapper.style.display = 'block';
-                if (meterBeforeWrapper) meterBeforeWrapper.style.display = 'block';
-                if (meterAfterWrapper) meterAfterWrapper.style.display = 'block';
 
-                if (resetHiddenFields) {
-                    clearVehicleFields();
-                }
-            } else {
-                if (resetHiddenFields) {
-                    clearVehicleFields();
-                    clearMotorTimeFields();
-                    clearMeterFields();
-                    clearNotesField();
-                }
+                if (reset) clearVehicleFields();
             }
         } else {
-            if (resetHiddenFields) {
+            if (reset) {
                 clearVehicleFields();
-                clearMotorTimeFields();
-                clearMeterFields();
-                clearNotesField();
+                clearMotorFields();
+                clearMeter();
                 if (usageField) usageField.value = '';
             }
         }
     }
 
     if (typeField) {
-        typeField.addEventListener('change', function () {
-            toggleFields(true);
-        });
+        typeField.addEventListener('change', () => toggleFields(true));
     }
 
     if (usageField) {
-        usageField.addEventListener('change', function () {
-            toggleFields(true);
-        });
+        usageField.addEventListener('change', () => toggleFields(true));
     }
 
-    if (dateField) {
-        dateField.addEventListener('change', updateDayFromDate);
-    }
-
-    updateDayFromDate();
     toggleFields(false);
 });
 </script>

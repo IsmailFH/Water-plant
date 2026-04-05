@@ -120,8 +120,7 @@ class FuelTransactionForm(forms.ModelForm):
             'notes',
             'start_time',
             'end_time',
-            'meter_before',
-            'meter_after',
+            'meter_reading',
         ]
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
@@ -142,9 +141,12 @@ class FuelTransactionForm(forms.ModelForm):
             }),
             'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
             'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
-            'meter_before': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'القراءة قبل', 'min': '0', 'step': '1'}),
-            'meter_after': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'القراءة بعد', 'min': '0', 'step': '1'}),
-        }
+            'meter_reading': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'القراءة',
+                'min': '0',
+                'step': '1'
+            }),      }
         labels = {
             'fuel_type': 'نوع المحروقات',
             'date': 'التاريخ',
@@ -157,8 +159,7 @@ class FuelTransactionForm(forms.ModelForm):
             'notes': 'ملاحظات',
             'start_time': 'ساعة التشغيل',
             'end_time': 'ساعة الإيقاف',
-            'meter_before': 'القراءة قبل',
-            'meter_after': 'القراءة بعد',
+            'meter_reading': 'القراءة',
         }
 
     def __init__(self, *args, **kwargs):
@@ -185,41 +186,35 @@ class FuelTransactionForm(forms.ModelForm):
                     self.add_error('driver', 'يجب اختيار السائق')
                 if not cleaned_data.get('vehicle_type'):
                     self.add_error('vehicle_type', 'يجب إدخال نوع السيارة')
-                if meter_before is None:
-                    self.add_error('meter_before', 'القراءة قبل مطلوبة')
-                if meter_after is None:
-                    self.add_error('meter_after', 'القراءة بعد مطلوبة')
-                if meter_before is not None and meter_after is not None and meter_after < meter_before:
-                    self.add_error('meter_after', 'القراءة بعد يجب أن تكون أكبر من أو تساوي القراءة قبل')
+                if cleaned_data.get('meter_reading') is None:
+                    self.add_error('meter_reading', 'القراءة مطلوبة')
 
                 cleaned_data['start_time'] = None
                 cleaned_data['end_time'] = None
 
 
             elif usage_type == 'motor':
+
                 if not start_time:
                     self.add_error('start_time', 'ساعة التشغيل مطلوبة')
+
                 if not end_time:
                     self.add_error('end_time', 'ساعة الإيقاف مطلوبة')
-                if meter_before is None:
-                    self.add_error('meter_before', 'القراءة قبل مطلوبة')
-                if meter_after is None:
-                    self.add_error('meter_after', 'القراءة بعد مطلوبة')
-                if meter_before is not None and meter_after is not None and meter_after < meter_before:
-                    self.add_error('meter_after', 'القراءة بعد يجب أن تكون أكبر من أو تساوي القراءة قبل')
+
+                if cleaned_data.get('meter_reading') is None:
+                    self.add_error('meter_reading', 'القراءة مطلوبة')
 
                 cleaned_data['driver'] = None
-                cleaned_data['driver'] = None
+
                 cleaned_data['vehicle_type'] = None
+
         else:
             cleaned_data['usage_type'] = None
             cleaned_data['driver'] = None
+            cleaned_data['vehicle_type'] = None
             cleaned_data['start_time'] = None
             cleaned_data['end_time'] = None
-            cleaned_data['meter_before'] = None
-            cleaned_data['meter_after'] = None
-            cleaned_data['driver'] = None
-            cleaned_data['vehicle_type'] = None
+            cleaned_data['meter_reading'] = None
 
         return cleaned_data
 

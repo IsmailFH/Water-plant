@@ -110,8 +110,7 @@ class FuelTransaction(models.Model):
     usage_type = models.CharField(max_length=20, choices=USAGE_TYPES, blank=True, null=True, verbose_name="الجهة")
     driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="اسم السائق")
 
-    meter_before = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة قبل")
-    meter_after = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة بعد")
+    meter_reading = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة")
 
     @property
     def odometer_difference(self):
