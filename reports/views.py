@@ -767,8 +767,6 @@ def delete_fountain_record(request, record_id):
 
 
 
-
-
 @login_required
 @manager_only
 def add_driver(request):
@@ -777,23 +775,22 @@ def add_driver(request):
         if form.is_valid():
             form.save()
             return redirect('drivers_list')
+        else:
+            print(form.errors)
     else:
         form = DriverForm()
+
     return render(request, 'driver/add_driver.html', {'form': form})
+
 
 @login_required
 @manager_only
 def drivers_list(request):
-    institution_filter = request.GET.get('institution', '')
-
-    records = Driver.objects.exclude()
-    if institution_filter:
-        records = records.filter(institution=institution_filter)
+    records = Driver.objects.all().order_by('name')
 
     return render(request, 'driver/drivers_list.html', {
         'records': records,
     })
-
 
 
 @login_required
@@ -805,11 +802,16 @@ def edit_driver(request, pk):
         form = DriverForm(request.POST, instance=driver)
         if form.is_valid():
             form.save()
-            return redirect('driver_list')
+            return redirect('drivers_list')
+        else:
+            print(form.errors)
     else:
         form = DriverForm(instance=driver)
 
-    return render(request, 'drivers/edit_driver.html', {'form': form, 'driver': driver})
+    return render(request, 'driver/edit_driver.html', {
+        'form': form,
+        'driver': driver,
+    })
 
 
 @login_required
@@ -818,7 +820,7 @@ def edit_driver(request, pk):
 def delete_driver(request, pk):
     driver = get_object_or_404(Driver, pk=pk)
     driver.delete()
-    return redirect('driver_list')
+    return redirect('drivers_list')
 
 
 

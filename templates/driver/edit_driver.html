@@ -1,13 +1,13 @@
 {% extends 'reports/base.html' %}
-{% block title %}إضافة سائق{% endblock %}
+{% block title %}تعديل سائق{% endblock %}
 
 {% block content %}
 <div class="container my-5" dir="rtl">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">إضافة سائق جديد</h4>
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">تعديل بيانات السائق</h4>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -31,7 +31,7 @@
 
                         <div class="d-flex justify-content-between">
                             <a href="{% url 'drivers_list' %}" class="btn btn-secondary">رجوع</a>
-                            <button type="submit" class="btn btn-success">حفظ</button>
+                            <button type="submit" class="btn btn-success">حفظ التعديلات</button>
                         </div>
                     </form>
                 </div>

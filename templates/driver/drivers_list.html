@@ -1,31 +1,20 @@
 {% extends 'reports/base.html' %}
-{% block title %} عرض السائقين{% endblock %}
+{% block title %}عرض السائقين{% endblock %}
+
 {% block content %}
 <div class="container my-5" dir="rtl">
-    <h2 class="text-center text-primary mb-4">قائمة السائقين</h2>
-<form method="get" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <label class="form-label">فلترة حسب المؤسسة:</label>
-        <select name="institution" class="form-select">
-            <option value="">الكل</option>
-            {% for inst in institutions %}
-                <option value="{{ inst }}" {% if selected_institution == inst %}selected{% endif %}>
-                    {{ inst }}
-                </option>
-            {% endfor %}
-        </select>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary m-0">قائمة السائقين</h2>
+        <a href="{% url 'add_driver' %}" class="btn btn-success">إضافة سائق</a>
     </div>
-    <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100">بحث</button>
-    </div>
-</form>
+
     <div class="table-responsive">
         <table class="table table-bordered table-hover text-center align-middle">
             <thead class="table-dark">
                 <tr>
                     <th>اسم السائق</th>
                     <th>رقم الهوية</th>
-
+                    <th>الإجراءات</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,26 +22,28 @@
                 <tr>
                     <td>{{ record.name }}</td>
                     <td>{{ record.id_number }}</td>
-<td>
-    <a href="{% url 'edit_driver' driver.id %}" class="btn btn-sm btn-primary">تعديل</a>
+                    <td>
+                        <a href="{% url 'edit_driver' record.id %}" class="btn btn-sm btn-primary">
+                            تعديل
+                        </a>
 
-    <form method="post" action="{% url 'delete_driver' driver.id %}" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
-            حذف
-        </button>
-    </form>
-</td>
+                        <form method="post" action="{% url 'delete_driver' record.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('هل أنت متأكد من حذف هذا السائق؟');">
+                                حذف
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7">لا يوجد سجلات لعرضها</td></tr>
+                <tr>
+                    <td colspan="3">لا يوجد سائقون مضافون حالياً</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-
-    <div class="text-end mt-3">
-        <a href="{% url 'add_driver' %}" class="btn btn-success">إضافة سائق جديد</a>
     </div>
 </div>
 {% endblock %}
