@@ -225,22 +225,16 @@ class CarRecordsForm(forms.ModelForm):
         data = self.cleaned_data['assistant']
         return ', '.join(data)
 
-    def clean_documented_for(self):
-        data = self.cleaned_data.get('documented_for', [])
-        if not data:
-            return 'لا يوجد'
-        return ', '.join(data)
+    # def clean_documented_for(self):
+    #     data = self.cleaned_data.get('documented_for', [])
+    #     if not data:
+    #         return 'لا يوجد'
+    #     return ', '.join(data)
 
     assistant = forms.MultipleChoiceField(
         choices=[],
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         label='اسم مساعد السائق:'
-    )
-    documented_for = forms.MultipleChoiceField(
-        choices=[],
-        required=False,
-        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
-        label='تم التوثيق لـ:'
     )
 
     car_count = forms.ChoiceField(
@@ -283,8 +277,6 @@ class CarRecordsForm(forms.ModelForm):
         assistants = Worker.objects.values_list('name', flat=True).distinct()
         self.fields['assistant'].choices = [(a, a) for a in assistants if a]
 
-        documented_for = Institution.objects.values_list('name', flat=True).distinct()
-        self.fields['documented_for'].choices = [(a, a) for a in documented_for if a]
 
 
 from django import forms
