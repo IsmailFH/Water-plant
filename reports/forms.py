@@ -218,23 +218,24 @@ class FuelTransactionForm(forms.ModelForm):
 
         return cleaned_data
 
+
 class CarRecordsForm(forms.ModelForm):
     COUNT_CHOICES = [(i, str(i)) for i in range(1, 51)]
     COUNT_CHOICES_DOUC = [(i, str(i)) for i in range(0, 50)]
-    def clean_assistant(self):
-        data = self.cleaned_data['assistant']
-        return ', '.join(data)
-
-    # def clean_documented_for(self):
-    #     data = self.cleaned_data.get('documented_for', [])
-    #     if not data:
-    #         return 'لا يوجد'
-    #     return ', '.join(data)
 
     assistant = forms.MultipleChoiceField(
         choices=[],
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         label='اسم مساعد السائق:'
+    )
+
+    documented_for = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'تم التوثيق لـ'
+        }),
+        label='تم التوثيق لـ:'
     )
 
     car_count = forms.ChoiceField(
@@ -258,15 +259,26 @@ class CarRecordsForm(forms.ModelForm):
             'name': forms.Select(attrs={'class': 'form-control'}),
             'notes': forms.TextInput(attrs={'class': 'form-control'}),
         }
-
         labels = {
             'date': 'التاريخ',
             'day': 'اليوم',
             'name': 'اسم السائق',
             'car_count': 'عدد السيارات',
             'documented_count': 'عدد السيارات الموثقة',
-            'notes': '  ملاحظات: ',
+            'notes': 'ملاحظات:',
         }
+
+    def clean_assistant(self):
+        data = self.cleaned_data.get('assistant', [])
+        if not data:
+            return ''
+        return ', '.join(data)
+
+    def clean_documented_for(self):
+        data = self.cleaned_data.get('documented_for', '')
+        if not data:
+            return 'لا يوجد'
+        return data.strip()
 
     def __init__(self, *args, **kwargs):
         super(CarRecordsForm, self).__init__(*args, **kwargs)
@@ -277,8 +289,7 @@ class CarRecordsForm(forms.ModelForm):
         assistants = Worker.objects.values_list('name', flat=True).distinct()
         self.fields['assistant'].choices = [(a, a) for a in assistants if a]
 
-
-
+        
 from django import forms
 from .models import FountainRecords
 import datetime
