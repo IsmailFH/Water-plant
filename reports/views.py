@@ -463,7 +463,7 @@ def fuel_transaction_list(request):
         processed.append({
             'id': t.id,
             'date': t.date.strftime('%d-%m-%Y'),
-            'day': arabic_day,
+            'day': arabic_days.get(t.date.strftime('%A'), t.date.strftime('%A')),
             'type': t.type,
             'fuel_type': t.get_fuel_type_display(),
             'quantity': t.quantity,
