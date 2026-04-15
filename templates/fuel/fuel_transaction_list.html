@@ -139,6 +139,49 @@
             </tbody>
         </table>
     </div>
+
+    {% if transactions.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+
+        {% if transactions.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ transactions.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.fuel_type %}&fuel_type={{ request.GET.fuel_type }}{% endif %}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.usage_type %}&usage_type={{ request.GET.usage_type }}{% endif %}">
+                    السابق
+                </a>
+            </li>
+        {% endif %}
+
+        {% for num in transactions.paginator.page_range %}
+            {% if transactions.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% elif num > transactions.number|add:'-3' and num < transactions.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.fuel_type %}&fuel_type={{ request.GET.fuel_type }}{% endif %}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.usage_type %}&usage_type={{ request.GET.usage_type }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if transactions.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ transactions.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.fuel_type %}&fuel_type={{ request.GET.fuel_type }}{% endif %}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.usage_type %}&usage_type={{ request.GET.usage_type }}{% endif %}">
+                    التالي
+                </a>
+            </li>
+        {% endif %}
+
+    </ul>
+</nav>
+{% endif %}
+
+    
     {% else %}
     <div class="alert alert-info text-center">لا توجد عمليات محروقات</div>
     {% endif %}
