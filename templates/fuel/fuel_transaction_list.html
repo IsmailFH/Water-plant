@@ -118,10 +118,10 @@
 <td>{{ t.meter_reading|default:"-" }}</td>
 <td>{{ t.meter_difference|default:"-" }}</td>
 <td>
-    {% if t.date_difference is not None %}
-        {{ t.date_difference }} يوم
-    {% else %}
+    {% if t.date_difference == None %}
         -
+    {% else %}
+        {{ t.date_difference }} يوم
     {% endif %}
 </td>
 

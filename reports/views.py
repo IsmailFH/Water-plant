@@ -366,7 +366,6 @@ def add_fuel_transaction(request):
         form = FuelTransactionForm()
     return render(request, 'fuel/add_fuel_transaction.html', {'form': form})
 
-
 @login_required
 @manager_only
 def fuel_transaction_list(request):
@@ -377,36 +376,35 @@ def fuel_transaction_list(request):
         ).aggregate(total=Sum('quantity'))
         return result['total'] or 0
 
-    transactions = FuelTransaction.objects.all().order_by('date')
+    transactions_qs = FuelTransaction.objects.all().order_by('-date', '-id')
 
-    if request.GET.get('start_date') and request.GET.get('end_date'):
-        start_date = request.GET['start_date']
-        end_date = request.GET['end_date']
-        transactions = transactions.filter(date__range=[start_date, end_date])
-
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
     fuel_filter = request.GET.get('fuel_type')
-    if fuel_filter:
-        transactions = transactions.filter(fuel_type=fuel_filter)
-
     usage_type_filter = request.GET.get('usage_type')
-    if usage_type_filter:
-        transactions = transactions.filter(usage_type=usage_type_filter)
-
     transaction_type_filter = request.GET.get('transaction_type')
-    if transaction_type_filter:
-        transactions = transactions.filter(type=transaction_type_filter)
 
-    transactions = transactions.order_by('-date')
+    if start_date and end_date:
+        transactions_qs = transactions_qs.filter(date__range=[start_date, end_date])
+
+    if fuel_filter:
+        transactions_qs = transactions_qs.filter(fuel_type=fuel_filter)
+
+    if usage_type_filter:
+        transactions_qs = transactions_qs.filter(usage_type=usage_type_filter)
+
+    if transaction_type_filter:
+        transactions_qs = transactions_qs.filter(type=transaction_type_filter)
 
     total_costs = {
-        'Solar': FuelTransaction.objects.filter(fuel_type='Solar', type='in').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
-        'gasoline': FuelTransaction.objects.filter(fuel_type='gasoline', type='in').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
-        'oil': FuelTransaction.objects.filter(fuel_type='oil', type='in').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
+        'Solar': FuelTransaction.objects.filter(fuel_type='Solar', type='in').aggregate(total=Sum('total_cost'))['total'] or 0,
+        'gasoline': FuelTransaction.objects.filter(fuel_type='gasoline', type='in').aggregate(total=Sum('total_cost'))['total'] or 0,
+        'oil': FuelTransaction.objects.filter(fuel_type='oil', type='in').aggregate(total=Sum('total_cost'))['total'] or 0,
     }
 
-    total_in_quantity = transactions.filter(type='in').aggregate(total=Sum('quantity'))['total'] or 0
-    total_out_quantity = transactions.filter(type='out').aggregate(total=Sum('quantity'))['total'] or 0
-    total_in_cost = transactions.filter(type='in').aggregate(total=Sum('total_cost'))['total'] or 0
+    total_in_quantity = transactions_qs.filter(type='in').aggregate(total=Sum('quantity'))['total'] or 0
+    total_out_quantity = transactions_qs.filter(type='out').aggregate(total=Sum('quantity'))['total'] or 0
+    total_in_cost = transactions_qs.filter(type='in').aggregate(total=Sum('total_cost'))['total'] or 0
 
     balance = {
         'Solar': get_quantity('Solar', 'in') - get_quantity('Solar', 'out'),
@@ -414,20 +412,23 @@ def fuel_transaction_list(request):
         'oil': get_quantity('oil', 'in') - get_quantity('oil', 'out'),
     }
 
-    total_run_time_seconds = sum(
-        (datetime.combine(datetime.today(), t.end_time) - datetime.combine(datetime.today(), t.start_time)).seconds
-        for t in transactions if t.start_time and t.end_time
-    )
+    total_run_time_seconds = 0
+    for t in transactions_qs:
+        if t.start_time and t.end_time:
+            start_dt = datetime.combine(t.date, t.start_time)
+            end_dt = datetime.combine(t.date, t.end_time)
+            if end_dt >= start_dt:
+                total_run_time_seconds += int((end_dt - start_dt).total_seconds())
 
     total_hours = total_run_time_seconds // 3600
     total_minutes = (total_run_time_seconds % 3600) // 60
     total_run_time_display = f"{total_hours} ساعة {total_minutes} دقيقة"
+
     processed = []
     current_balances = {'Solar': 0, 'gasoline': 0, 'oil': 0}
     previous_dates_by_driver = {}
-    previous_meter_by_driver = {}
 
-    for t in transactions:
+    for t in transactions_qs:
         fuel = t.fuel_type
 
         if t.type == 'in':
@@ -436,45 +437,38 @@ def fuel_transaction_list(request):
             current_balances[fuel] -= t.quantity
 
         if t.start_time and t.end_time:
-            start = datetime.combine(datetime.today(), t.start_time)
-            end = datetime.combine(datetime.today(), t.end_time)
-            diff = end - start
-            total_minutes = diff.seconds // 60
-            hours = total_minutes // 60
-            minutes = total_minutes % 60
-            run_time_hours = f"{hours} ساعات {minutes} دقيقة"
+            start_dt = datetime.combine(t.date, t.start_time)
+            end_dt = datetime.combine(t.date, t.end_time)
+            if end_dt >= start_dt:
+                diff = end_dt - start_dt
+                total_minutes_rt = diff.seconds // 60
+                hours = total_minutes_rt // 60
+                minutes = total_minutes_rt % 60
+                run_time_hours = f"{hours} ساعات {minutes} دقيقة"
+            else:
+                run_time_hours = "لا يوجد"
         else:
             run_time_hours = "لا يوجد"
 
         driver_id = t.driver.id if t.driver else None
 
-        # فرق الأيام لنفس السائق
         if driver_id and driver_id in previous_dates_by_driver:
             date_difference = abs((previous_dates_by_driver[driver_id] - t.date).days)
         else:
             date_difference = None
 
-        # القراءة السابقة لنفس السائق
-        if driver_id and driver_id in previous_meter_by_driver:
-            previous_meter = previous_meter_by_driver[driver_id]
-        else:
-            previous_meter = 0
-
-        # فرق القراءة
-        if t.meter_reading is not None:
-            meter_difference = t.meter_reading - previous_meter
-        else:
-            meter_difference = None
+        english_day = t.date.strftime('%A')
+        arabic_day = arabic_days.get(english_day, english_day)
 
         processed.append({
             'id': t.id,
             'date': t.date.strftime('%d-%m-%Y'),
+            'day': arabic_day,
             'type': t.type,
-            'quantity': t.quantity,
             'fuel_type': t.get_fuel_type_display(),
+            'quantity': t.quantity,
             'fuel_transaction_source': t.fuel_transaction_source,
             'total_cost': t.total_cost,
-            'day': arabic_days[t.date.strftime('%A')],
             'current_balance': current_balances[fuel],
             'run_time_hours': run_time_hours,
             'usage_type': t.usage_type,
@@ -483,31 +477,25 @@ def fuel_transaction_list(request):
             'notes': t.notes,
             'start_time': t.start_time,
             'end_time': t.end_time,
-
-            # الجديد
-            'previous_meter': previous_meter if driver_id else 0,
-            'meter_reading': t.meter_reading,
-            'meter_difference': meter_difference,
+            'meter_before': t.meter_before,
+            'meter_after': t.meter_after,
+            'meter_difference': (
+                t.meter_after - t.meter_before
+                if t.meter_before is not None and t.meter_after is not None
+                else None
+            ),
             'date_difference': date_difference,
         })
 
         if driver_id:
             previous_dates_by_driver[driver_id] = t.date
-            if t.meter_reading is not None:
-                previous_meter_by_driver[driver_id] = t.meter_reading
 
     paginator = Paginator(processed, 20)
     page = request.GET.get('page')
-
-    try:
-        processed = paginator.page(page)
-    except PageNotAnInteger:
-        processed = paginator.page(1)
-    except EmptyPage:
-        processed = paginator.page(paginator.num_pages)
+    transactions = paginator.get_page(page)
 
     context = {
-        'transactions': processed,
+        'transactions': transactions,
         'total_in_quantity': total_in_quantity,
         'total_out_quantity': total_out_quantity,
         'total_in_cost': total_in_cost,
@@ -517,7 +505,6 @@ def fuel_transaction_list(request):
     }
 
     return render(request, 'fuel/fuel_transaction_list.html', context)
-
 
 @login_required
 @manager_only
