@@ -365,6 +365,7 @@ def add_fuel_transaction(request):
     else:
         form = FuelTransactionForm()
     return render(request, 'fuel/add_fuel_transaction.html', {'form': form})
+
 @login_required
 @manager_only
 def fuel_transaction_list(request):
@@ -520,6 +521,34 @@ def fuel_transaction_list(request):
     }
 
     return render(request, 'fuel/fuel_transaction_list.html', context)
+
+@login_required
+@manager_only
+def edit_fuel_record(request, pk):
+    fuel_record = get_object_or_404(FuelTransaction, pk=pk)
+
+    if request.method == 'POST':
+        form = FuelTransactionForm(request.POST, instance=fuel_record)
+        if form.is_valid():
+            form.save()
+            return redirect('fuel_transaction_list')
+        else:
+            print(form.errors)
+    else:
+        form = FuelTransactionForm(instance=fuel_record)
+
+    return render(request, 'fuel/edit_fuel_transaction.html', {'form': form})
+
+
+@require_POST
+def delete_fuel_record(request, record_id):
+    record = get_object_or_404(FuelTransaction, id=record_id)
+    record.delete()
+    return redirect('fuel_transaction_list')
+
+
+
+
 @login_required
 @manager_only
 def add_car_record(request):
