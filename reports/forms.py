@@ -289,7 +289,7 @@ class CarRecordsForm(forms.ModelForm):
         assistants = Worker.objects.values_list('name', flat=True).distinct()
         self.fields['assistant'].choices = [(a, a) for a in assistants if a]
 
-        
+
 from django import forms
 from .models import FountainRecords
 import datetime
