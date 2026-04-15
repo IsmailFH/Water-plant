@@ -59,47 +59,23 @@
             {% endif %}
         </div>
 
-        <div class="col-md-4" id="usage_type_wrapper" style="display:none;">
-            <label for="{{ form.usage_type.id_for_label }}" class="form-label">الجهة</label>
-            {{ form.usage_type }}
-            {% if form.usage_type.errors %}
-                <div class="text-danger">{{ form.usage_type.errors }}</div>
-            {% endif %}
-        </div>
-
-
-
-        <div id="motor_fields" class="row g-3" style="display:none;">
-            <div class="col-md-3">
-                <label for="{{ form.start_time.id_for_label }}" class="form-label">ساعة التشغيل</label>
-                {{ form.start_time }}
-                {% if form.start_time.errors %}
-                    <div class="text-danger">{{ form.start_time.errors }}</div>
-                {% endif %}
-            </div>
-
-            <div class="col-md-3">
-                <label for="{{ form.end_time.id_for_label }}" class="form-label">ساعة الإيقاف</label>
-                {{ form.end_time }}
-                {% if form.end_time.errors %}
-                    <div class="text-danger">{{ form.end_time.errors }}</div>
-                {% endif %}
-            </div>
-
- <div class="col-md-3" id="meter_reading_wrapper">
-    <label for="{{ form.meter_reading.id_for_label }}" class="form-label">القراءة</label>
-    {{ form.meter_reading }}
-    {% if form.meter_reading.errors %}
-        <div class="text-danger">{{ form.meter_reading.errors }}</div>
+<div class="col-md-4" id="usage_type_wrapper" style="display:none;">
+    <label for="{{ form.usage_type.id_for_label }}" class="form-label">الجهة</label>
+    {{ form.usage_type }}
+    {% if form.usage_type.errors %}
+        <div class="text-danger">{{ form.usage_type.errors }}</div>
     {% endif %}
 </div>
-                    <div class="col-md-4" id="driver_wrapper" style="display:none;">
-            <label for="{{ form.driver.id_for_label }}" class="form-label">اسم السائق</label>
-            {{ form.driver }}
-            {% if form.driver.errors %}
-                <div class="text-danger">{{ form.driver.errors }}</div>
-            {% endif %}
-        </div>
+
+<!-- حقول السيارة خارج motor_fields -->
+<div class="col-md-4" id="driver_wrapper" style="display:none;">
+    <label for="{{ form.driver.id_for_label }}" class="form-label">اسم السائق</label>
+    {{ form.driver }}
+    {% if form.driver.errors %}
+        <div class="text-danger">{{ form.driver.errors }}</div>
+    {% endif %}
+</div>
+
 <div class="col-md-4" id="vehicle_type_wrapper" style="display:none;">
     <label for="{{ form.vehicle_type.id_for_label }}" class="form-label">نوع السيارة</label>
     {{ form.vehicle_type }}
@@ -116,7 +92,32 @@
     {% endif %}
 </div>
 
-        </div>
+<!-- حقول الماتور فقط -->
+<div id="motor_fields" class="row g-3" style="display:none;">
+    <div class="col-md-3">
+        <label for="{{ form.start_time.id_for_label }}" class="form-label">ساعة التشغيل</label>
+        {{ form.start_time }}
+        {% if form.start_time.errors %}
+            <div class="text-danger">{{ form.start_time.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-3">
+        <label for="{{ form.end_time.id_for_label }}" class="form-label">ساعة الإيقاف</label>
+        {{ form.end_time }}
+        {% if form.end_time.errors %}
+            <div class="text-danger">{{ form.end_time.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-3" id="meter_reading_wrapper">
+        <label for="{{ form.meter_reading.id_for_label }}" class="form-label">القراءة</label>
+        {{ form.meter_reading }}
+        {% if form.meter_reading.errors %}
+            <div class="text-danger">{{ form.meter_reading.errors }}</div>
+        {% endif %}
+    </div>
+</div>
 
         <div class="col-12 text-end mt-4">
             <button type="submit" class="btn btn-success px-4">حفظ</button>
@@ -126,7 +127,6 @@
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
     const typeField = document.getElementById('id_type');
     const usageField = document.getElementById('id_usage_type');
 
@@ -135,27 +135,22 @@ document.addEventListener('DOMContentLoaded', function () {
     const vehicleTypeWrapper = document.getElementById('vehicle_type_wrapper');
     const notesWrapper = document.getElementById('notes_wrapper');
     const motorFields = document.getElementById('motor_fields');
-
-    const startTimeWrapper = document.getElementById('start_time_wrapper');
-    const endTimeWrapper = document.getElementById('end_time_wrapper');
-
     const meterReadingWrapper = document.getElementById('meter_reading_wrapper');
+
+    const driverField = document.getElementById('id_driver');
+    const vehicleTypeField = document.getElementById('id_vehicle_type');
+    const startTimeField = document.getElementById('id_start_time');
+    const endTimeField = document.getElementById('id_end_time');
     const meterReadingField = document.getElementById('id_meter_reading');
 
     function clearVehicleFields() {
-        const driverField = document.getElementById('id_driver');
-        const vehicleTypeField = document.getElementById('id_vehicle_type');
-
         if (driverField) driverField.value = '';
         if (vehicleTypeField) vehicleTypeField.value = '';
     }
 
     function clearMotorFields() {
-        const startTime = document.getElementById('id_start_time');
-        const endTime = document.getElementById('id_end_time');
-
-        if (startTime) startTime.value = '';
-        if (endTime) endTime.value = '';
+        if (startTimeField) startTimeField.value = '';
+        if (endTimeField) endTimeField.value = '';
     }
 
     function clearMeter() {
@@ -163,40 +158,29 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function toggleFields(reset = false) {
-
         const type = typeField ? typeField.value : '';
         const usage = usageField ? usageField.value : '';
 
-        // إخفاء الكل أولاً
         if (usageWrapper) usageWrapper.style.display = 'none';
         if (driverWrapper) driverWrapper.style.display = 'none';
         if (vehicleTypeWrapper) vehicleTypeWrapper.style.display = 'none';
         if (notesWrapper) notesWrapper.style.display = 'none';
         if (motorFields) motorFields.style.display = 'none';
-
-        if (startTimeWrapper) startTimeWrapper.style.display = 'none';
-        if (endTimeWrapper) endTimeWrapper.style.display = 'none';
         if (meterReadingWrapper) meterReadingWrapper.style.display = 'none';
 
-        // إذا صادر
         if (type === 'out') {
-
             if (usageWrapper) usageWrapper.style.display = 'block';
             if (notesWrapper) notesWrapper.style.display = 'block';
-            if (meterReadingWrapper) meterReadingWrapper.style.display = 'block';
 
             if (usage === 'vehicle') {
                 if (driverWrapper) driverWrapper.style.display = 'block';
                 if (vehicleTypeWrapper) vehicleTypeWrapper.style.display = 'block';
+                if (meterReadingWrapper) meterReadingWrapper.style.display = 'block';
 
                 if (reset) clearMotorFields();
-
             } else if (usage === 'motor') {
-
                 if (motorFields) motorFields.style.display = 'flex';
-
-                if (startTimeWrapper) startTimeWrapper.style.display = 'block';
-                if (endTimeWrapper) endTimeWrapper.style.display = 'block';
+                if (meterReadingWrapper) meterReadingWrapper.style.display = 'block';
 
                 if (reset) clearVehicleFields();
             }
