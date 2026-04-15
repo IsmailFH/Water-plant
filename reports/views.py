@@ -477,8 +477,8 @@ def fuel_transaction_list(request):
             'notes': t.notes,
             'start_time': t.start_time,
             'end_time': t.end_time,
-            'meter_before': t.meter_before,
-            'meter_after': t.meter_after,
+            # 'meter_before': t.meter_before,
+            # 'meter_after': t.meter_after,
             'meter_difference': (
                 t.meter_after - t.meter_before
                 if t.meter_before is not None and t.meter_after is not None
