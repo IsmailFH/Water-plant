@@ -104,7 +104,6 @@ class AddWorkerForm(forms.ModelForm):
 #             'end_time': ' ساعة الايقاف',
 #         }
 #
-
 class FuelTransactionForm(forms.ModelForm):
     class Meta:
         model = FuelTransaction
@@ -122,14 +121,33 @@ class FuelTransactionForm(forms.ModelForm):
             'end_time',
             'meter_reading',
         ]
+
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'type': forms.Select(attrs={'class': 'form-control', 'id': 'id_type'}),
-            'fuel_type': forms.Select(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'كمية المحروقات'}),
-            'fuel_transaction_source': forms.Select(attrs={'class': 'form-control'}),
-            'usage_type': forms.Select(attrs={'class': 'form-control', 'id': 'id_usage_type'}),
-            'driver': forms.Select(attrs={'class': 'form-control'}),
+            'date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+            'type': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'id_type'
+            }),
+            'fuel_type': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'كمية المحروقات'
+            }),
+            'fuel_transaction_source': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'usage_type': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'id_usage_type'
+            }),
+            'driver': forms.Select(attrs={
+                'class': 'form-control'
+            }),
             'vehicle_type': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'نوع السيارة'
@@ -139,14 +157,22 @@ class FuelTransactionForm(forms.ModelForm):
                 'rows': 3,
                 'placeholder': 'ملاحظات'
             }),
-            'start_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
-            'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'start_time': forms.TimeInput(attrs={
+                'class': 'form-control',
+                'type': 'time'
+            }),
+            'end_time': forms.TimeInput(attrs={
+                'class': 'form-control',
+                'type': 'time'
+            }),
             'meter_reading': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'القراءة',
                 'min': '0',
                 'step': '1'
-            }),      }
+            }),
+        }
+
         labels = {
             'fuel_type': 'نوع المحروقات',
             'date': 'التاريخ',
@@ -172,42 +198,50 @@ class FuelTransactionForm(forms.ModelForm):
         transaction_type = cleaned_data.get('type')
         usage_type = cleaned_data.get('usage_type')
         driver = cleaned_data.get('driver')
+        vehicle_type = cleaned_data.get('vehicle_type')
         start_time = cleaned_data.get('start_time')
         end_time = cleaned_data.get('end_time')
-        meter_before = cleaned_data.get('meter_before')
-        meter_after = cleaned_data.get('meter_after')
+        meter_reading = cleaned_data.get('meter_reading')
 
+        # إذا العملية صادر
         if transaction_type == 'out':
             if not usage_type:
                 self.add_error('usage_type', 'يجب تحديد الجهة')
 
+            # سيارة
             if usage_type == 'vehicle':
                 if not driver:
                     self.add_error('driver', 'يجب اختيار السائق')
-                if not cleaned_data.get('vehicle_type'):
+
+                if not vehicle_type:
                     self.add_error('vehicle_type', 'يجب إدخال نوع السيارة')
-                if cleaned_data.get('meter_reading') is None:
+
+                if meter_reading is None:
                     self.add_error('meter_reading', 'القراءة مطلوبة')
 
+                # حقول الماتور لا تلزم السيارة
                 cleaned_data['start_time'] = None
                 cleaned_data['end_time'] = None
 
-
+            # ماتور
             elif usage_type == 'motor':
-
                 if not start_time:
                     self.add_error('start_time', 'ساعة التشغيل مطلوبة')
 
                 if not end_time:
                     self.add_error('end_time', 'ساعة الإيقاف مطلوبة')
 
-                if cleaned_data.get('meter_reading') is None:
+                if start_time and end_time and end_time == start_time:
+                    self.add_error('end_time', 'ساعة الإيقاف يجب أن تختلف عن ساعة التشغيل')
+
+                if meter_reading is None:
                     self.add_error('meter_reading', 'القراءة مطلوبة')
 
+                # حقول السيارة لا تلزم الماتور
                 cleaned_data['driver'] = None
-
                 cleaned_data['vehicle_type'] = None
 
+        # إذا العملية وارد
         else:
             cleaned_data['usage_type'] = None
             cleaned_data['driver'] = None
@@ -215,9 +249,9 @@ class FuelTransactionForm(forms.ModelForm):
             cleaned_data['start_time'] = None
             cleaned_data['end_time'] = None
             cleaned_data['meter_reading'] = None
+            cleaned_data['notes'] = cleaned_data.get('notes')
 
         return cleaned_data
-
 
 class CarRecordsForm(forms.ModelForm):
     COUNT_CHOICES = [(i, str(i)) for i in range(1, 51)]

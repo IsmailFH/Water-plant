@@ -365,7 +365,6 @@ def add_fuel_transaction(request):
     else:
         form = FuelTransactionForm()
     return render(request, 'fuel/add_fuel_transaction.html', {'form': form})
-
 @login_required
 @manager_only
 def fuel_transaction_list(request):
@@ -376,7 +375,8 @@ def fuel_transaction_list(request):
         ).aggregate(total=Sum('quantity'))
         return result['total'] or 0
 
-    transactions_qs = FuelTransaction.objects.all().order_by('-date', '-id')
+    # نفلتر أولاً
+    transactions_qs = FuelTransaction.objects.select_related('driver').all()
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -412,13 +412,17 @@ def fuel_transaction_list(request):
         'oil': get_quantity('oil', 'in') - get_quantity('oil', 'out'),
     }
 
+    # الترتيب التصاعدي مهم للحساب الصحيح
+    transactions_for_calc = transactions_qs.order_by('date', 'id')
+
     total_run_time_seconds = 0
-    for t in transactions_qs:
+    for t in transactions_for_calc:
         if t.start_time and t.end_time:
             start_dt = datetime.combine(t.date, t.start_time)
             end_dt = datetime.combine(t.date, t.end_time)
-            if end_dt >= start_dt:
-                total_run_time_seconds += int((end_dt - start_dt).total_seconds())
+            if end_dt < start_dt:
+                end_dt += timedelta(days=1)
+            total_run_time_seconds += int((end_dt - start_dt).total_seconds())
 
     total_hours = total_run_time_seconds // 3600
     total_minutes = (total_run_time_seconds % 3600) // 60
@@ -426,9 +430,12 @@ def fuel_transaction_list(request):
 
     processed = []
     current_balances = {'Solar': 0, 'gasoline': 0, 'oil': 0}
-    previous_dates_by_driver = {}
 
-    for t in transactions_qs:
+    # حفظ آخر قراءة وآخر تاريخ لكل سائق
+    previous_meter_by_driver = {}
+    previous_date_by_driver = {}
+
+    for t in transactions_for_calc:
         fuel = t.fuel_type
 
         if t.type == 'in':
@@ -439,26 +446,37 @@ def fuel_transaction_list(request):
         if t.start_time and t.end_time:
             start_dt = datetime.combine(t.date, t.start_time)
             end_dt = datetime.combine(t.date, t.end_time)
-            if end_dt >= start_dt:
-                diff = end_dt - start_dt
-                total_minutes_rt = diff.seconds // 60
-                hours = total_minutes_rt // 60
-                minutes = total_minutes_rt % 60
-                run_time_hours = f"{hours} ساعات {minutes} دقيقة"
-            else:
-                run_time_hours = "لا يوجد"
+            if end_dt < start_dt:
+                end_dt += timedelta(days=1)
+
+            diff = end_dt - start_dt
+            total_minutes_rt = int(diff.total_seconds() // 60)
+            hours = total_minutes_rt // 60
+            minutes = total_minutes_rt % 60
+            run_time_hours = f"{hours} ساعات {minutes} دقيقة"
         else:
             run_time_hours = "لا يوجد"
 
+        previous_meter = None
+        meter_difference = None
+        previous_date = None
+        date_difference = None
+
         driver_id = t.driver.id if t.driver else None
 
-        if driver_id and driver_id in previous_dates_by_driver:
-            date_difference = abs((previous_dates_by_driver[driver_id] - t.date).days)
-        else:
-            date_difference = None
+        # الحساب فقط لنفس السائق، وعند وجود قراءة، ويفضل في السجلات الصادرة فقط
+        if t.type == 'out' and driver_id and t.meter_reading is not None:
+            previous_meter = previous_meter_by_driver.get(driver_id)
+            previous_date = previous_date_by_driver.get(driver_id)
 
-        english_day = t.date.strftime('%A')
-        arabic_day = arabic_days.get(english_day, english_day)
+            if previous_meter is not None:
+                meter_difference = t.meter_reading - previous_meter
+
+            if previous_date is not None:
+                date_difference = (t.date - previous_date).days
+
+            previous_meter_by_driver[driver_id] = t.meter_reading
+            previous_date_by_driver[driver_id] = t.date
 
         processed.append({
             'id': t.id,
@@ -477,18 +495,15 @@ def fuel_transaction_list(request):
             'notes': t.notes,
             'start_time': t.start_time,
             'end_time': t.end_time,
-            # 'meter_before': t.meter_before,
-            # 'meter_after': t.meter_after,
-            'meter_difference': (
-                t.meter_after - t.meter_before
-                if t.meter_before is not None and t.meter_after is not None
-                else None
-            ),
+            'previous_meter': previous_meter,
+            'meter_reading': t.meter_reading,
+            'meter_difference': meter_difference,
+            'previous_date': previous_date,
             'date_difference': date_difference,
         })
 
-        if driver_id:
-            previous_dates_by_driver[driver_id] = t.date
+    # للعرض من الأحدث إلى الأقدم
+    processed.reverse()
 
     paginator = Paginator(processed, 20)
     page = request.GET.get('page')
@@ -505,34 +520,6 @@ def fuel_transaction_list(request):
     }
 
     return render(request, 'fuel/fuel_transaction_list.html', context)
-
-@login_required
-@manager_only
-def edit_fuel_record(request, pk):
-    fuel_record = get_object_or_404(FuelTransaction, pk=pk)
-
-    if request.method == 'POST':
-        form = FuelTransactionForm(request.POST, instance=fuel_record)
-        if form.is_valid():
-            form.save()
-            return redirect('fuel_transaction_list')
-        else:
-            print(form.errors)
-    else:
-        form = FuelTransactionForm(instance=fuel_record)
-
-    return render(request, 'fuel/edit_fuel_transaction.html', {'form': form})
-
-
-@require_POST
-def delete_fuel_record(request, record_id):
-    record = get_object_or_404(FuelTransaction, id=record_id)
-    record.delete()
-    return redirect('fuel_transaction_list')
-
-
-
-
 @login_required
 @manager_only
 def add_car_record(request):

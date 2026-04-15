@@ -73,17 +73,18 @@ class Attendance(models.Model):
 #             delta = end - start
 #             return delta.total_seconds() / 3600
 #         return None
-
 class FuelTransaction(models.Model):
     FUEL_TYPES = [
         ('Solar', 'سولار'),
         ('gasoline', 'بنزين'),
         ('oil', 'زيت'),
     ]
+
     TRANSACTION_TYPES = [
         ('in', 'وارد'),
         ('out', 'صادر'),
     ]
+
     FUEL_TRANSACTION_TYPES = [
         ('خاص', 'خاص'),
         ('بلدية', 'بلدية'),
@@ -100,22 +101,58 @@ class FuelTransaction(models.Model):
     type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
     date = models.DateField()
     quantity = models.FloatField()
-    fuel_transaction_source = models.CharField(max_length=13, choices=FUEL_TRANSACTION_TYPES, default='خاص')
+    fuel_transaction_source = models.CharField(
+        max_length=13,
+        choices=FUEL_TRANSACTION_TYPES,
+        default='خاص'
+    )
     total_cost = models.FloatField(blank=True, null=True)
-    vehicle_type = models.CharField(max_length=255, null=True, blank=True, verbose_name="نوع السيارة")
-    notes = models.TextField(null=True, blank=True, verbose_name="ملاحظات")
+
+    vehicle_type = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name="نوع السيارة"
+    )
+    notes = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name="ملاحظات"
+    )
+
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
 
-    usage_type = models.CharField(max_length=20, choices=USAGE_TYPES, blank=True, null=True, verbose_name="الجهة")
-    driver = models.ForeignKey('Driver', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="اسم السائق")
+    usage_type = models.CharField(
+        max_length=20,
+        choices=USAGE_TYPES,
+        blank=True,
+        null=True,
+        verbose_name="الجهة"
+    )
+    driver = models.ForeignKey(
+        'Driver',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="اسم السائق"
+    )
 
-    meter_reading = models.PositiveIntegerField(null=True, blank=True, verbose_name="القراءة")
+    meter_reading = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="القراءة"
+    )
+
+    def __str__(self):
+        return f"{self.get_fuel_type_display()} - {self.date} - {self.get_type_display()}"
 
     @property
     def odometer_difference(self):
-        if self.meter_before is not None and self.meter_after is not None:
-            return self.meter_after - self.meter_before
+        """
+        الفرق لا يُحسب هنا من الموديل لأننا نعتمد على
+        آخر قراءة سابقة لنفس السائق داخل الـ view.
+        """
         return None
 
     def operating_hours(self):
@@ -123,10 +160,14 @@ class FuelTransaction(models.Model):
             import datetime
             start = datetime.datetime.combine(datetime.date.today(), self.start_time)
             end = datetime.datetime.combine(datetime.date.today(), self.end_time)
+
+            if end < start:
+                end += datetime.timedelta(days=1)
+
             delta = end - start
             return delta.total_seconds() / 3600
-        return None
 
+        return None
 class Driver(AbstractNameModel):
     id_number=models.CharField()
 
