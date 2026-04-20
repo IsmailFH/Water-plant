@@ -230,17 +230,18 @@ class FuelTransactionForm(forms.ModelForm):
                 if start_time and end_time and end_time == start_time:
                     self.add_error('end_time', 'ساعة الإيقاف يجب أن تختلف عن ساعة التشغيل')
 
-                cleaned_data['driver'] = None
-                cleaned_data['vehicle_type'] = None
-                cleaned_data['meter_reading'] = None
+                # cleaned_data['driver'] = None
+                # cleaned_data['vehicle_type'] = None
+                # cleaned_data['meter_reading'] = None
 
         else:
-            cleaned_data['usage_type'] = None
-            cleaned_data['driver'] = None
-            cleaned_data['vehicle_type'] = None
-            cleaned_data['start_time'] = None
-            cleaned_data['end_time'] = None
-            cleaned_data['meter_reading'] = None
+            pass
+            # cleaned_data['usage_type'] = None
+            # cleaned_data['driver'] = None
+            # cleaned_data['vehicle_type'] = None
+            # cleaned_data['start_time'] = None
+            # cleaned_data['end_time'] = None
+            # cleaned_data['meter_reading'] = None
 
         return cleaned_data
 
