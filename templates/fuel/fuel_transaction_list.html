@@ -54,6 +54,68 @@
         </div>
     </form>
 
+    <div class="mb-3 text-end">
+    <button onclick="window.print()" class="btn btn-dark">طباعة / حفظ PDF</button>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="alert alert-success text-center">
+            <strong>إجمالي الوارد</strong><br>
+            {{ total_in_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-danger text-center">
+            <strong>إجمالي الصادر</strong><br>
+            {{ total_out_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-primary text-center">
+            <strong>إجمالي تكلفة الوارد</strong><br>
+            {{ total_in_cost }}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="alert alert-warning text-center">
+            <strong>صادر سيارات</strong><br>
+            {{ vehicle_out_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-info text-center">
+            <strong>صادر ماتورات</strong><br>
+            {{ motor_out_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-secondary text-center">
+            <strong>إجمالي التشغيل</strong><br>
+            {{ total_run_time_display }}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="alert alert-light text-center">
+            <strong>عدد عمليات الوارد</strong><br>
+            {{ in_count }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-light text-center">
+            <strong>عدد عمليات الصادر</strong><br>
+            {{ out_count }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-light text-center">
+            <strong>عدد صادر السيارات / الماتورات</strong><br>
+            {{ vehicle_out_count }} / {{ motor_out_count }}
+        </div>
+    </div>
+</div>
     {% if transactions %}
     <div class="table-responsive">
         <table class="table table-bordered text-center">
@@ -94,15 +156,13 @@
                     <td>{{ t.fuel_type }}</td>
                     <td>{{ t.quantity }}</td>
 
-                    <td>
-                        {% if t.usage_type == 'motor' %}
-                            ماتور
-                        {% elif t.usage_type == 'vehicle' %}
-                            سيارة
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
+<td>
+    {% if t.usage_type == 'motor' %}
+        ماتور
+    {% else %}
+        سيارة
+    {% endif %}
+</td>
 
                     <td>
                         {% if t.driver %}
