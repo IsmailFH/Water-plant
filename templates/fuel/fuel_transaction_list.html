@@ -178,32 +178,14 @@
 
                     <td>{{ t.vehicle_type|default:"-" }}</td>
                     <td>{{ t.notes|default:"-" }}</td>
+<td>{{ t.previous_meter|default:"-" }}</td>
+<td>{{ t.meter_reading|default:"-" }}</td>
+<td>{{ t.meter_difference|default:"-" }}</td>
 <td>
-    {% if t.usage_type == 'vehicle' %}
-        {{ t.previous_meter|default:"-" }}
-    {% else %}
+    {% if t.date_difference == None %}
         -
-    {% endif %}
-</td>
-<td>
-    {% if t.usage_type == 'vehicle' %}
-        {{ t.meter_reading|default:"-" }}
     {% else %}
-        -
-    {% endif %}
-</td>
-<td>
-    {% if t.usage_type == 'vehicle' %}
-        {{ t.meter_difference|default:"-" }}
-    {% else %}
-        -
-    {% endif %}
-</td>
-<td>
-    {% if t.usage_type == 'vehicle' and t.date_difference != None %}
         {{ t.date_difference }} يوم
-    {% else %}
-        -
     {% endif %}
 </td>
 
