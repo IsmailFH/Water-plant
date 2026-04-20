@@ -203,12 +203,10 @@ class FuelTransactionForm(forms.ModelForm):
         end_time = cleaned_data.get('end_time')
         meter_reading = cleaned_data.get('meter_reading')
 
-        # إذا العملية صادر
         if transaction_type == 'out':
             if not usage_type:
                 self.add_error('usage_type', 'يجب تحديد الجهة')
 
-            # سيارة
             if usage_type == 'vehicle':
                 if not driver:
                     self.add_error('driver', 'يجب اختيار السائق')
@@ -219,11 +217,9 @@ class FuelTransactionForm(forms.ModelForm):
                 if meter_reading is None:
                     self.add_error('meter_reading', 'القراءة مطلوبة')
 
-                # حقول الماتور لا تلزم السيارة
                 cleaned_data['start_time'] = None
                 cleaned_data['end_time'] = None
 
-            # ماتور
             elif usage_type == 'motor':
                 if not start_time:
                     self.add_error('start_time', 'ساعة التشغيل مطلوبة')
@@ -238,7 +234,6 @@ class FuelTransactionForm(forms.ModelForm):
                 cleaned_data['vehicle_type'] = None
                 cleaned_data['meter_reading'] = None
 
-        # إذا العملية وارد
         else:
             cleaned_data['usage_type'] = None
             cleaned_data['driver'] = None
@@ -246,7 +241,6 @@ class FuelTransactionForm(forms.ModelForm):
             cleaned_data['start_time'] = None
             cleaned_data['end_time'] = None
             cleaned_data['meter_reading'] = None
-            cleaned_data['notes'] = cleaned_data.get('notes')
 
         return cleaned_data
 
