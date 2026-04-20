@@ -115,6 +115,7 @@
 <div class="d-flex justify-content-center mt-4">
     <nav aria-label="Page navigation">
         <ul class="pagination">
+
             {% if records.has_previous %}
                 <li class="page-item">
                     <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ records.previous_page_number }}">السابق</a>
@@ -126,13 +127,19 @@
             {% endif %}
 
             {% for num in records.paginator.page_range %}
-                {% if records.number == num %}
-                    <li class="page-item active">
-                        <span class="page-link">{{ num }}</span>
-                    </li>
-                {% else %}
-                    <li class="page-item">
-                        <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                {% if num <= 10 or num > records.paginator.num_pages|add:'-10' %}
+                    {% if records.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% elif num == 11 or num == records.paginator.num_pages|add:'-10' %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -146,6 +153,7 @@
                     <span class="page-link">التالي</span>
                 </li>
             {% endif %}
+
         </ul>
     </nav>
 </div>

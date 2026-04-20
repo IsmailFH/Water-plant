@@ -407,6 +407,19 @@ def fuel_transaction_list(request):
     total_out_quantity = transactions_qs.filter(type='out').aggregate(total=Sum('quantity'))['total'] or 0
     total_in_cost = transactions_qs.filter(type='in').aggregate(total=Sum('total_cost'))['total'] or 0
 
+    vehicle_out_quantity = transactions_qs.filter(type='out', usage_type='vehicle').aggregate(total=Sum('quantity'))[
+                               'total'] or 0
+    motor_out_quantity = transactions_qs.filter(type='out', usage_type='motor').aggregate(total=Sum('quantity'))[
+                             'total'] or 0
+
+    vehicle_out_count = transactions_qs.filter(type='out', usage_type='vehicle').count()
+    motor_out_count = transactions_qs.filter(type='out', usage_type='motor').count()
+    in_count = transactions_qs.filter(type='in').count()
+    out_count = transactions_qs.filter(type='out').count()
+
+
+
+
     balance = {
         'Solar': get_quantity('Solar', 'in') - get_quantity('Solar', 'out'),
         'gasoline': get_quantity('gasoline', 'in') - get_quantity('gasoline', 'out'),
@@ -518,6 +531,14 @@ def fuel_transaction_list(request):
         'total_run_time_display': total_run_time_display,
         'final_balance': balance,
         'total_costs': total_costs,
+
+        'vehicle_out_quantity': vehicle_out_quantity,
+        'motor_out_quantity': motor_out_quantity,
+        'vehicle_out_count': vehicle_out_count,
+        'motor_out_count': motor_out_count,
+        'in_count': in_count,
+        'out_count': out_count,
+
     }
 
     return render(request, 'fuel/fuel_transaction_list.html', context)

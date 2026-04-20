@@ -157,12 +157,12 @@ if (type === 'out') {
         if (meterReadingWrapper) meterReadingWrapper.style.display = 'block';
 
         if (reset) clearMotorFields();
-    } else if (usage === 'motor') {
-        if (motorFields) motorFields.style.display = 'flex';
-        if (meterReadingWrapper) meterReadingWrapper.style.display = 'block';
+} else if (usage === 'motor') {
+    if (motorFields) motorFields.style.display = 'flex';
 
-        if (reset) clearVehicleFields();
-    }
+    if (reset) clearVehicleFields();
+    clearMeter();
+}
 } else {
             if (reset) {
                 clearVehicleFields();

@@ -234,12 +234,9 @@ class FuelTransactionForm(forms.ModelForm):
                 if start_time and end_time and end_time == start_time:
                     self.add_error('end_time', 'ساعة الإيقاف يجب أن تختلف عن ساعة التشغيل')
 
-                if meter_reading is None:
-                    self.add_error('meter_reading', 'القراءة مطلوبة')
-
-                # حقول السيارة لا تلزم الماتور
                 cleaned_data['driver'] = None
                 cleaned_data['vehicle_type'] = None
+                cleaned_data['meter_reading'] = None
 
         # إذا العملية وارد
         else:
