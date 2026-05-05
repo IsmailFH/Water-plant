@@ -248,7 +248,7 @@ class FuelTransactionForm(forms.ModelForm):
 class CarRecordsForm(forms.ModelForm):
     COUNT_CHOICES = [(i, str(i)) for i in range(1, 51)]
     COUNT_CHOICES_DOUC = [(i, str(i)) for i in range(0, 50)]
-
+    CUPS_CHOICES = [(i, str(i)) for i in range(0, 201)]
     assistant = forms.MultipleChoiceField(
         choices=[],
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
@@ -270,6 +270,12 @@ class CarRecordsForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
+
+    cups = forms.ChoiceField(
+        label='عدد الأكواب',
+        choices=CUPS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
     documented_count = forms.ChoiceField(
         label='عدد السيارات الموثقة',
         choices=COUNT_CHOICES_DOUC,

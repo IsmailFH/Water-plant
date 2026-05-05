@@ -591,7 +591,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth.decorators import login_required
 from .models import CarRecords, Driver, Worker, Institution
 from .decorators import manager_only  # حسب مشروعك
-
+from django.db.models import Sum
 @login_required
 @manager_only
 def car_records_list(request):
@@ -626,7 +626,7 @@ def car_records_list(request):
 
     total_car_count = records.aggregate(total=Sum('car_count'))['total'] or 0
     total_documented_count = records.aggregate(total=Sum('documented_count'))['total'] or 0
-
+    total_cups = records.aggregate(Sum('cups'))['cups__sum'] or 0
     # ✨ Pagination
     paginator = Paginator(records, 20)
     page = request.GET.get('page')
@@ -653,8 +653,11 @@ def car_records_list(request):
         'selected_institutions': selected_institutions,
         'selected_documented_for': selected_documented_for,
         'selected_notes': selected_notes,
+
         'total_car_count': total_car_count,
         'total_documented_count': total_documented_count,
+        'total_cups': total_cups,
+
     }
     return render(request, 'cars/car_records_list.html', context)
 

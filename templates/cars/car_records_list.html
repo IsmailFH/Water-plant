@@ -80,6 +80,7 @@
                     <th>اسم السائق</th>
                     <th>اسم المساعد</th>
                     <th>عدد السيارات</th>
+                    <th>عدد الأكواب</th>
                     <th>عدد الموثقة</th>
                     <th>تم التوثيق لـ</th>
                     <th>ملاحظات</th>
@@ -95,6 +96,7 @@
         <td>{{ record.name.name }}</td>
         <td>{{ record.assistant }}</td>
         <td>{{ record.car_count }}</td>
+        <td>{{ record.cups }}</td>
         <td>{{ record.documented_count }}</td>
         <td>{{ record.documented_for }}</td>
         <td>{{ record.notes }}</td>
@@ -167,6 +169,12 @@
             <h5>إجمالي عدد السيارات: {{ total_car_count }}</h5>
         </div>
     </div>
+        <div class="col-md-6">
+    <div class="alert alert-warning text-center">
+        <h5>إجمالي عدد الأكواب: {{ total_cups }}</h5>
+    </div>
+</div>
+
     <div class="col-md-6">
         <div class="alert alert-success text-center">
             <h5>إجمالي عدد الموثقة: {{ total_documented_count }}</h5>
