@@ -1380,10 +1380,10 @@ def reports_summary(request):
 
 
 
-
-from django.template.loader import get_template
-from xhtml2pdf import pisa
+from django.template.loader import render_to_string
+from weasyprint import HTML
 from django.http import HttpResponse
+
 from django.db.models import Sum, Q
 from django.db.models.functions import Cast
 from django.db.models import IntegerField
@@ -1396,6 +1396,7 @@ def summary_pdf(request):
     car_records = CarRecords.objects.all()
     fuel = FuelTransaction.objects.all()
 
+    # ✅ فلترة صح
     if start_date:
         car_records = car_records.filter(date__gte=start_date)
         fuel = fuel.filter(date__gte=start_date)
@@ -1404,7 +1405,7 @@ def summary_pdf(request):
         car_records = car_records.filter(date__lte=end_date)
         fuel = fuel.filter(date__lte=end_date)
 
-    # 🚗
+    # 🚗 السيارات
     total_cars = car_records.aggregate(
         total=Sum(Cast('car_count', IntegerField()))
     )['total'] or 0
@@ -1417,15 +1418,17 @@ def summary_pdf(request):
         total=Sum('cups')
     )['total'] or 0
 
-    # ⛽
+    # ⛽ الوقود
     total_fuel_in = fuel.filter(type='in').aggregate(Sum('quantity'))['quantity__sum'] or 0
     total_fuel_out = fuel.filter(type='out').aggregate(Sum('quantity'))['quantity__sum'] or 0
 
     motor_fuel = fuel.filter(Q(type='out') & Q(usage_type='motor')).aggregate(Sum('quantity'))['quantity__sum'] or 0
     vehicle_fuel = fuel.filter(Q(type='out') & Q(usage_type='vehicle')).aggregate(Sum('quantity'))['quantity__sum'] or 0
-    unknown_fuel = fuel.filter(Q(type='out') & (Q(usage_type__isnull=True) | Q(usage_type=''))).aggregate(Sum('quantity'))['quantity__sum'] or 0
+    unknown_fuel = fuel.filter(
+        Q(type='out') & (Q(usage_type__isnull=True) | Q(usage_type=''))
+    ).aggregate(Sum('quantity'))['quantity__sum'] or 0
 
-    # ⏱
+    # ⏱ ساعات التشغيل
     total_seconds = 0
     for f in fuel.filter(Q(usage_type='motor') | Q(start_time__isnull=False, end_time__isnull=False)):
         h = f.operating_hours()
@@ -1435,7 +1438,8 @@ def summary_pdf(request):
     total_hours = int(total_seconds // 3600)
     total_minutes = int((total_seconds % 3600) // 60)
 
-    context = {
+    # 📄 HTML
+    html_string = render_to_string('reports/summary_pdf.html', {
         'total_cars': total_cars,
         'total_documented': total_documented,
         'total_cups': total_cups,
@@ -1446,13 +1450,13 @@ def summary_pdf(request):
         'unknown_fuel': unknown_fuel,
         'total_hours': total_hours,
         'total_minutes': total_minutes,
-    }
+        'start_date': start_date,
+        'end_date': end_date,
+    })
 
-    template = get_template('reports/summary_pdf.html')
-    html = template.render(context)
+    pdf_file = HTML(string=html_string).write_pdf()
 
-    response = HttpResponse(content_type='application/pdf')
+    response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="report.pdf"'
 
-    pisa.CreatePDF(html, dest=response)
     return response
