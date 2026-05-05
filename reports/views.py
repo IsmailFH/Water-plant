@@ -1377,7 +1377,8 @@ def reports_summary(request):
     }
 
     return render(request, 'reports/summary.html', context)
-
+from django.conf import settings
+from weasyprint import HTML
 
 from django.utils.timezone import now
 from django.template.loader import render_to_string
@@ -1462,9 +1463,13 @@ def summary_pdf(request):
         'report_number': report_number,
     })
 
-    pdf_file = HTML(string=html_string).write_pdf()
 
-    response = HttpResponse(pdf_file, content_type='application/pdf')
+    html = HTML(
+        string=html_string,
+        base_url=request.build_absolute_uri('/')  # 🔥 أهم سطر
+    )
+    pdf = html.write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="report_{report_number}.pdf"'
 
     return response
