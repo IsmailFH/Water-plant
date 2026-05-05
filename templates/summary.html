@@ -1,0 +1,116 @@
+{% extends 'reports/base.html' %}
+{% block title %}التقارير العامة{% endblock %}
+
+{% block content %}
+
+<div class="container my-5" dir="rtl">
+
+```
+<h2 class="text-center text-primary mb-4">📊 تقارير المحطة الشاملة</h2>
+
+<!-- 🔎 فلترة -->
+<form method="get" class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <label class="form-label">من تاريخ</label>
+        <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+    </div>
+
+    <div class="col-md-3">
+        <label class="form-label">إلى تاريخ</label>
+        <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary w-100">عرض التقرير</button>
+    </div>
+
+    <div class="col-md-3 d-flex align-items-end">
+        <a href="{% url 'reports_summary' %}" class="btn btn-secondary w-100">إفراغ الفلاتر</a>
+    </div>
+
+</form>
+<a href="{% url 'summary_pdf' %}?start_date={{ start_date }}&end_date={{ end_date }}"
+   class="btn btn-danger">
+   تحميل PDF
+</a>
+<!-- 📊 الإحصائيات -->
+<div class="row g-3">
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-light">
+            <div class="card-body">
+                <h6>🚗 عدد السيارات</h6>
+                <h3>{{ total_cars }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-success text-white">
+            <div class="card-body">
+                <h6>📄 السيارات الموثقة</h6>
+                <h3>{{ total_documented }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-warning">
+            <div class="card-body">
+                <h6>🥤 عدد الأكواب</h6>
+                <h3>{{ total_cups }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-primary text-white">
+            <div class="card-body">
+                <h6>⛽ الوارد</h6>
+                <h3>{{ total_fuel_in }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-danger text-white">
+            <div class="card-body">
+                <h6>⛽ الصادر</h6>
+                <h3>{{ total_fuel_out }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-dark text-white">
+            <div class="card-body">
+                <h6>⚙️ سولار الماتور</h6>
+                <h3>{{ motor_fuel }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-secondary text-white">
+            <div class="card-body">
+                <h6>🚛 سولار السيارات</h6>
+                <h3>{{ vehicle_fuel }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-info text-white">
+            <div class="card-body">
+                <h6>⏱ ساعات التشغيل</h6>
+                <h3>{{ total_hours }} ساعة {{ total_minutes }} دقيقة</h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+```
+
+</div>
+{% endblock %}

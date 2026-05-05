@@ -1274,3 +1274,185 @@ def delete_vehicle_fuel_record(request, record_id):
     record = get_object_or_404(VehicleFuelRecord, id=record_id)
     record.delete()
     return redirect('vehicle_fuel_list')
+
+
+from django.db.models import Sum, Q
+from django.db.models.functions import Cast
+from django.db.models import IntegerField
+
+def reports_summary(request):
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # ======================
+    # 🚗 السيارات
+    # ======================
+    car_records = CarRecords.objects.all()
+
+    # ✅ فلترة ذكية (ما تضيع بيانات)
+    if start_date:
+        car_records = car_records.filter(date__gte=start_date)
+    if end_date:
+        car_records = car_records.filter(date__lte=end_date)
+
+    total_cars = car_records.aggregate(
+        total=Sum(Cast('car_count', IntegerField()))
+    )['total'] or 0
+
+    total_documented = car_records.aggregate(
+        total=Sum(Cast('documented_count', IntegerField()))
+    )['total'] or 0
+
+    total_cups = car_records.aggregate(
+        total=Sum('cups')
+    )['total'] or 0
+
+
+    # ======================
+    # ⛽ الوقود
+    # ======================
+    fuel = FuelTransaction.objects.all()
+
+    if start_date:
+        fuel = fuel.filter(date__gte=start_date)
+    if end_date:
+        fuel = fuel.filter(date__lte=end_date)
+
+    # ✅ لا تفقد بيانات بدون usage_type
+    total_fuel_in = fuel.filter(type='in').aggregate(Sum('quantity'))['quantity__sum'] or 0
+    total_fuel_out = fuel.filter(type='out').aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+    # ⚠️ أهم نقطة: بعض السجلات usage_type فاضي
+    motor_fuel = fuel.filter(
+        Q(type='out') & Q(usage_type='motor')
+    ).aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+    vehicle_fuel = fuel.filter(
+        Q(type='out') & Q(usage_type='vehicle')
+    ).aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+    # 🔥 الباقي (بدون تصنيف)
+    unknown_fuel = fuel.filter(
+        Q(type='out') & (Q(usage_type__isnull=True) | Q(usage_type=''))
+    ).aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+
+    # ======================
+    # ⏱ ساعات التشغيل (ماتور فقط)
+    # ======================
+    total_seconds = 0
+
+    motor_records = fuel.filter(
+        Q(usage_type='motor') |
+        Q(start_time__isnull=False, end_time__isnull=False)
+    )
+
+    for f in motor_records:
+        hours = f.operating_hours()
+        if hours:
+            total_seconds += hours * 3600
+
+    total_hours = int(total_seconds // 3600)
+    total_minutes = int((total_seconds % 3600) // 60)
+
+
+    context = {
+        'total_cars': total_cars,
+        'total_documented': total_documented,
+        'total_cups': total_cups,
+
+        'total_fuel_in': total_fuel_in,
+        'total_fuel_out': total_fuel_out,
+
+        'motor_fuel': motor_fuel,
+        'vehicle_fuel': vehicle_fuel,
+        'unknown_fuel': unknown_fuel,  # 🔥 مهم
+
+        'total_hours': total_hours,
+        'total_minutes': total_minutes,
+
+        'start_date': start_date,
+        'end_date': end_date,
+    }
+
+    return render(request, 'reports/summary.html', context)
+
+
+
+
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from django.http import HttpResponse
+from django.db.models import Sum, Q
+from django.db.models.functions import Cast
+from django.db.models import IntegerField
+
+def summary_pdf(request):
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    car_records = CarRecords.objects.all()
+    fuel = FuelTransaction.objects.all()
+
+    if start_date:
+        car_records = car_records.filter(date__gte=start_date)
+        fuel = fuel.filter(date__gte=start_date)
+
+    if end_date:
+        car_records = car_records.filter(date__lte=end_date)
+        fuel = fuel.filter(date__lte=end_date)
+
+    # 🚗
+    total_cars = car_records.aggregate(
+        total=Sum(Cast('car_count', IntegerField()))
+    )['total'] or 0
+
+    total_documented = car_records.aggregate(
+        total=Sum(Cast('documented_count', IntegerField()))
+    )['total'] or 0
+
+    total_cups = car_records.aggregate(
+        total=Sum('cups')
+    )['total'] or 0
+
+    # ⛽
+    total_fuel_in = fuel.filter(type='in').aggregate(Sum('quantity'))['quantity__sum'] or 0
+    total_fuel_out = fuel.filter(type='out').aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+    motor_fuel = fuel.filter(Q(type='out') & Q(usage_type='motor')).aggregate(Sum('quantity'))['quantity__sum'] or 0
+    vehicle_fuel = fuel.filter(Q(type='out') & Q(usage_type='vehicle')).aggregate(Sum('quantity'))['quantity__sum'] or 0
+    unknown_fuel = fuel.filter(Q(type='out') & (Q(usage_type__isnull=True) | Q(usage_type=''))).aggregate(Sum('quantity'))['quantity__sum'] or 0
+
+    # ⏱
+    total_seconds = 0
+    for f in fuel.filter(Q(usage_type='motor') | Q(start_time__isnull=False, end_time__isnull=False)):
+        h = f.operating_hours()
+        if h:
+            total_seconds += h * 3600
+
+    total_hours = int(total_seconds // 3600)
+    total_minutes = int((total_seconds % 3600) // 60)
+
+    context = {
+        'total_cars': total_cars,
+        'total_documented': total_documented,
+        'total_cups': total_cups,
+        'total_fuel_in': total_fuel_in,
+        'total_fuel_out': total_fuel_out,
+        'motor_fuel': motor_fuel,
+        'vehicle_fuel': vehicle_fuel,
+        'unknown_fuel': unknown_fuel,
+        'total_hours': total_hours,
+        'total_minutes': total_minutes,
+    }
+
+    template = get_template('reports/summary_pdf.html')
+    html = template.render(context)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+
+    pisa.CreatePDF(html, dest=response)
+    return response

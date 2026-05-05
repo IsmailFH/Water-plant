@@ -69,4 +69,13 @@ urlpatterns = [
     path('vehicle_fuel_list/', views.vehicle_fuel_list, name='vehicle_fuel_list'),
     path('edit-vehicle-fuel/<int:pk>/', views.edit_vehicle_fuel_record, name='edit_vehicle_fuel_record'),
     path('vehicle-fuel-records/delete/<int:record_id>/', views.delete_vehicle_fuel_record, name='delete_vehicle_fuel_record'),
+
+
+
+
+    path('summary/', views.reports_summary, name='reports_summary'),
+    path('summary/pdf/', views.summary_pdf, name='summary_pdf'),
+
+
+
 ]
