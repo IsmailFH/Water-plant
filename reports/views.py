@@ -1387,6 +1387,7 @@ from django.http import HttpResponse
 from django.db.models import Sum, Q
 from django.db.models.functions import Cast
 from django.db.models import IntegerField
+from .models import ReportCounter
 
 def summary_pdf(request):
 
@@ -1438,6 +1439,11 @@ def summary_pdf(request):
     total_hours = int(total_seconds // 3600)
     total_minutes = int((total_seconds % 3600) // 60)
 
+    counter, created = ReportCounter.objects.get_or_create(id=1)
+    counter.last_number += 1
+    counter.save()
+    report_number = counter.last_number
+
     # 📄 HTML
     html_string = render_to_string('reports/summary_pdf.html', {
         'total_cars': total_cars,
@@ -1452,12 +1458,13 @@ def summary_pdf(request):
         'total_minutes': total_minutes,
         'start_date': start_date,
         'end_date': end_date,
-        'now': now()
+        'now': now(),
+        'report_number': report_number,
     })
 
     pdf_file = HTML(string=html_string).write_pdf()
 
     response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="report_{report_number}.pdf"'
 
     return response

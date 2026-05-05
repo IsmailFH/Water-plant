@@ -258,3 +258,7 @@ class VehicleFuelRecord(models.Model):
 
     def __str__(self):
         return f"{self.driver} - {self.date}"
+
+
+class ReportCounter(models.Model):
+    last_number = models.IntegerField(default=0)
