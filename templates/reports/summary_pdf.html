@@ -5,33 +5,59 @@
     <meta charset="UTF-8">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            direction: rtl;
-            text-align: right;
+            font-family: DejaVu Sans;
+            margin: 30px;
         }
 
 ```
-    h2 {
+    h1 {
         text-align: center;
-        color: #2c3e50;
+        margin-bottom: 5px;
     }
 
-    .section {
-        margin-top: 20px;
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .date-range {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 14px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 25px;
+    }
+
+    th {
+        background: #2c3e50;
+        color: white;
         padding: 10px;
-        border-bottom: 1px solid #ccc;
     }
 
-    .box {
-        margin: 5px 0;
+    td {
         padding: 8px;
-        background: #f5f5f5;
-        border-radius: 5px;
+        border: 1px solid #ddd;
     }
 
-    .title {
+    .section-title {
+        background: #3498db;
+        color: white;
+        padding: 8px;
+        margin-top: 20px;
         font-weight: bold;
     }
+
+    .footer {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 12px;
+        color: gray;
+    }
+
 </style>
 ```
 
@@ -40,30 +66,51 @@
 <body>
 
 ```
-<h2>📊 تقرير المحطة</h2>
+<!-- 🔝 الهيدر -->
+<div class="header">
+    <h1>📊 تقرير محطة المياه</h1>
+    <div>نظام إدارة المحطة</div>
+</div>
+
+<!-- 📅 التاريخ -->
+<div class="date-range">
+    من: {{ start_date|default:"بداية السجلات" }}
+    إلى: {{ end_date|default:"نهاية السجلات" }}
+</div>
 
 <!-- 🚗 السيارات -->
-<div class="section">
-    <div class="box"><span class="title">🚗 عدد السيارات:</span> {{ total_cars }}</div>
-    <div class="box"><span class="title">📄 السيارات الموثقة:</span> {{ total_documented }}</div>
-    <div class="box"><span class="title">🥤 عدد الأكواب:</span> {{ total_cups }}</div>
-</div>
+<div class="section-title">🚗 بيانات السيارات</div>
+<table>
+    <tr><th>البند</th><th>القيمة</th></tr>
+    <tr><td>عدد السيارات</td><td>{{ total_cars }}</td></tr>
+    <tr><td>عدد الموثقة</td><td>{{ total_documented }}</td></tr>
+    <tr><td>عدد الأكواب</td><td>{{ total_cups }}</td></tr>
+</table>
 
 <!-- ⛽ الوقود -->
-<div class="section">
-    <div class="box"><span class="title">⛽ الوارد:</span> {{ total_fuel_in }}</div>
-    <div class="box"><span class="title">⛽ الصادر:</span> {{ total_fuel_out }}</div>
-    <div class="box"><span class="title">⚙️ سولار الماتور:</span> {{ motor_fuel }}</div>
-    <div class="box"><span class="title">🚛 سولار السيارات:</span> {{ vehicle_fuel }}</div>
-    <div class="box"><span class="title">❓ غير مصنف:</span> {{ unknown_fuel }}</div>
-</div>
+<div class="section-title">⛽ بيانات الوقود</div>
+<table>
+    <tr><th>البند</th><th>القيمة</th></tr>
+    <tr><td>الوارد</td><td>{{ total_fuel_in }}</td></tr>
+    <tr><td>الصادر</td><td>{{ total_fuel_out }}</td></tr>
+    <tr><td>سولار الماتور</td><td>{{ motor_fuel }}</td></tr>
+    <tr><td>سولار السيارات</td><td>{{ vehicle_fuel }}</td></tr>
+    <tr><td>غير مصنف</td><td>{{ unknown_fuel }}</td></tr>
+</table>
 
 <!-- ⏱ التشغيل -->
-<div class="section">
-    <div class="box">
-        <span class="title">⏱ ساعات التشغيل:</span>
-        {{ total_hours }} ساعة {{ total_minutes }} دقيقة
-    </div>
+<div class="section-title">⏱ التشغيل</div>
+<table>
+    <tr><th>البند</th><th>القيمة</th></tr>
+    <tr>
+        <td>ساعات التشغيل</td>
+        <td>{{ total_hours }} ساعة {{ total_minutes }} دقيقة</td>
+    </tr>
+</table>
+
+<!-- 🔚 Footer -->
+<div class="footer">
+    تم إنشاء التقرير تلقائياً بواسطة النظام
 </div>
 ```
 
