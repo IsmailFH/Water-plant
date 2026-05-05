@@ -2,94 +2,137 @@
 
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <style>
-        body {
-            font-family: DejaVu Sans;
-            margin: 30px;
-        }
+<meta charset="UTF-8">
 
-```
-    h1 {
-        text-align: center;
-        margin-bottom: 5px;
+<style>
+    body {
+        font-family: DejaVu Sans;
+        margin: 25px;
+        direction: rtl;
     }
 
+    .page {
+        border: 3px solid #000;
+        padding: 20px;
+    }
+
+    /* 🔝 الترويسة */
     .header {
         text-align: center;
-        margin-bottom: 20px;
+        border-bottom: 2px solid #000;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
     }
 
-    .date-range {
-        text-align: center;
-        margin-bottom: 25px;
-        font-size: 14px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 25px;
-    }
-
-    th {
-        background: #2c3e50;
-        color: white;
-        padding: 10px;
-    }
-
-    td {
-        padding: 8px;
-        border: 1px solid #ddd;
-    }
-
-    .section-title {
-        background: #3498db;
-        color: white;
-        padding: 8px;
-        margin-top: 20px;
+    .company-name {
+        font-size: 20px;
         font-weight: bold;
     }
 
-    .footer {
+    .company-info {
+        font-size: 12px;
+    }
+
+    /* 📄 بيانات التقرير */
+    .report-meta {
+        width: 100%;
+        margin-top: 10px;
+        font-size: 12px;
+    }
+
+    .report-meta td {
+        padding: 4px;
+    }
+
+    /* 🔹 العناوين */
+    .section-title {
+        background: #000;
+        color: #fff;
+        padding: 6px;
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    /* 📊 الجداول */
+    table.data {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+    }
+
+    table.data th {
+        border: 1px solid #000;
+        background: #eee;
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    table.data td {
+        border: 1px solid #000;
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    /* 🔚 التوقيع */
+    .signatures {
         margin-top: 40px;
+        width: 100%;
         text-align: center;
         font-size: 12px;
-        color: gray;
+    }
+
+    .sign-box {
+        display: inline-block;
+        width: 40%;
+        margin: 0 20px;
     }
 
 </style>
-```
 
 </head>
 
 <body>
 
+<div class="page">
+
 ```
-<!-- 🔝 الهيدر -->
+<!-- 🔝 الترويسة -->
 <div class="header">
-    <h1>📊 تقرير محطة المياه</h1>
-    <div>نظام إدارة المحطة</div>
+    <div class="company-name">محطة المياه</div>
+    <div class="company-info">
+        نظام إدارة وتشغيل المحطة<br>
+        هاتف: 0590000000
+    </div>
 </div>
 
-<!-- 📅 التاريخ -->
-<div class="date-range">
-    من: {{ start_date|default:"بداية السجلات" }}
-    إلى: {{ end_date|default:"نهاية السجلات" }}
-</div>
+<!-- 📄 بيانات التقرير -->
+<table class="report-meta">
+    <tr>
+        <td><strong>رقم التقرير:</strong> {{ total_cars }}{{ total_cups }}</td>
+        <td><strong>تاريخ الإصدار:</strong> {{ now|date:"Y-m-d" }}</td>
+    </tr>
+    <tr>
+        <td><strong>يوم الإصدار:</strong> {{ now|date:"l" }}</td>
+        <td>
+            <strong>الفترة:</strong>
+            من {{ start_date|default:"بداية السجلات" }}
+            إلى {{ end_date|default:"نهاية السجلات" }}
+        </td>
+    </tr>
+</table>
 
 <!-- 🚗 السيارات -->
-<div class="section-title">🚗 بيانات السيارات</div>
-<table>
+<div class="section-title">بيانات السيارات</div>
+<table class="data">
     <tr><th>البند</th><th>القيمة</th></tr>
     <tr><td>عدد السيارات</td><td>{{ total_cars }}</td></tr>
-    <tr><td>عدد الموثقة</td><td>{{ total_documented }}</td></tr>
+    <tr><td>عدد السيارات الموثقة</td><td>{{ total_documented }}</td></tr>
     <tr><td>عدد الأكواب</td><td>{{ total_cups }}</td></tr>
 </table>
 
 <!-- ⛽ الوقود -->
-<div class="section-title">⛽ بيانات الوقود</div>
-<table>
+<div class="section-title">بيانات الوقود</div>
+<table class="data">
     <tr><th>البند</th><th>القيمة</th></tr>
     <tr><td>الوارد</td><td>{{ total_fuel_in }}</td></tr>
     <tr><td>الصادر</td><td>{{ total_fuel_out }}</td></tr>
@@ -99,8 +142,8 @@
 </table>
 
 <!-- ⏱ التشغيل -->
-<div class="section-title">⏱ التشغيل</div>
-<table>
+<div class="section-title">بيانات التشغيل</div>
+<table class="data">
     <tr><th>البند</th><th>القيمة</th></tr>
     <tr>
         <td>ساعات التشغيل</td>
@@ -108,11 +151,21 @@
     </tr>
 </table>
 
-<!-- 🔚 Footer -->
-<div class="footer">
-    تم إنشاء التقرير تلقائياً بواسطة النظام
+<!-- ✍️ التوقيع -->
+<div class="signatures">
+    <div class="sign-box">
+        _______________________<br>
+        توقيع المسؤول
+    </div>
+
+    <div class="sign-box">
+        _______________________<br>
+        ختم المحطة
+    </div>
 </div>
 ```
+
+</div>
 
 </body>
 </html>

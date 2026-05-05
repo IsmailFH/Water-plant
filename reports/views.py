@@ -1379,7 +1379,7 @@ def reports_summary(request):
     return render(request, 'reports/summary.html', context)
 
 
-
+from django.utils.timezone import now
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.http import HttpResponse
@@ -1452,6 +1452,7 @@ def summary_pdf(request):
         'total_minutes': total_minutes,
         'start_date': start_date,
         'end_date': end_date,
+        'now': now()
     })
 
     pdf_file = HTML(string=html_string).write_pdf()
