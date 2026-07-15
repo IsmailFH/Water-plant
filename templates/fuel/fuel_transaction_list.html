@@ -1,0 +1,250 @@
+{% extends 'reports/base.html' %}
+{% block title %}سجل المحروقات{% endblock %}
+
+{% block content %}
+<div class="container my-4" dir="rtl">
+    <h2 class="text-center text-primary mb-4">سجل المحروقات</h2>
+
+    <div class="mb-3 text-end">
+        <a href="{% url 'add_fuel_transaction' %}" class="btn btn-success">إضافة عملية جديدة</a>
+    </div>
+
+    <form method="get" class="row g-3 mb-4 bg-light p-3 rounded shadow-sm">
+        <div class="col-md-3">
+            <label class="form-label">من تاريخ</label>
+            <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="form-control">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">إلى تاريخ</label>
+            <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="form-control">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">نوع المحروقات</label>
+            <select name="fuel_type" class="form-control">
+                <option value="">الكل</option>
+                <option value="Solar" {% if request.GET.fuel_type == 'Solar' %}selected{% endif %}>سولار</option>
+                <option value="gasoline" {% if request.GET.fuel_type == 'gasoline' %}selected{% endif %}>بنزين</option>
+                <option value="oil" {% if request.GET.fuel_type == 'oil' %}selected{% endif %}>زيت</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">نوع العملية</label>
+            <select name="transaction_type" class="form-control">
+                <option value="">الكل</option>
+                <option value="in" {% if request.GET.transaction_type == 'in' %}selected{% endif %}>وارد</option>
+                <option value="out" {% if request.GET.transaction_type == 'out' %}selected{% endif %}>صادر</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">الجهة</label>
+            <select name="usage_type" class="form-control">
+                <option value="">الكل</option>
+                <option value="motor" {% if request.GET.usage_type == 'motor' %}selected{% endif %}>ماتور</option>
+                <option value="vehicle" {% if request.GET.usage_type == 'vehicle' %}selected{% endif %}>سيارة</option>
+            </select>
+        </div>
+
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-primary">فلترة</button>
+            <a href="{% url 'fuel_transaction_list' %}" class="btn btn-secondary">إعادة ضبط</a>
+        </div>
+    </form>
+
+    <div class="mb-3 text-end">
+    <button onclick="window.print()" class="btn btn-dark">طباعة / حفظ PDF</button>
+    <a href="{% url 'export_fuel_transactions_excel' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success">تصدير Excel</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="alert alert-success text-center">
+            <strong>إجمالي الوارد</strong><br>
+            {{ total_in_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-danger text-center">
+            <strong>إجمالي الصادر</strong><br>
+            {{ total_out_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-primary text-center">
+            <strong>إجمالي تكلفة الوارد</strong><br>
+            {{ total_in_cost }}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="alert alert-warning text-center">
+            <strong>صادر سيارات</strong><br>
+            {{ vehicle_out_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-info text-center">
+            <strong>صادر ماتورات</strong><br>
+            {{ motor_out_quantity }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-secondary text-center">
+            <strong>إجمالي التشغيل</strong><br>
+            {{ total_run_time_display }}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="alert alert-light text-center">
+            <strong>عدد عمليات الوارد</strong><br>
+            {{ in_count }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-light text-center">
+            <strong>عدد عمليات الصادر</strong><br>
+            {{ out_count }}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="alert alert-light text-center">
+            <strong>عدد صادر السيارات / الماتورات</strong><br>
+            {{ vehicle_out_count }} / {{ motor_out_count }}
+        </div>
+    </div>
+</div>
+    {% if transactions %}
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>التاريخ</th>
+                    <th>اليوم</th>
+                    <th>نوع العملية</th>
+                    <th>نوع المحروقات</th>
+                    <th>الكمية</th>
+                    <th>الجهة</th>
+                    <th>السائق</th>
+                    <th>نوع السيارة</th>
+                    <th>ملاحظات</th>
+<th>القراءة السابقة</th>
+<th>القراءة الحالية</th>
+<th>الفرق</th>
+<th>فرق الأيام</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.date }}</td>
+                    <td>{{ t.day }}</td>
+
+                    <td>
+                        {% if t.type == 'in' %}
+                            وارد
+                        {% elif t.type == 'out' %}
+                            صادر
+                        {% else %}
+                            {{ t.type }}
+                        {% endif %}
+                    </td>
+
+                    <td>{{ t.fuel_type }}</td>
+                    <td>{{ t.quantity }}</td>
+
+<td>
+    {% if t.usage_type == 'motor' %}
+        ماتور
+    {% else %}
+        سيارة
+    {% endif %}
+</td>
+
+                    <td>
+                        {% if t.driver %}
+                            {{ t.driver.name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>{{ t.vehicle_type|default:"-" }}</td>
+                    <td>{{ t.notes|default:"-" }}</td>
+<td>{{ t.previous_meter|default:"-" }}</td>
+<td>{{ t.meter_reading|default:"-" }}</td>
+<td>{{ t.meter_difference|default:"-" }}</td>
+<td>
+    {% if t.date_difference == None %}
+        -
+    {% else %}
+        {{ t.date_difference }} يوم
+    {% endif %}
+</td>
+
+                    <td>
+                        <a href="{% url 'edit_fuel_record' t.id %}" class="btn btn-sm btn-primary">تعديل</a>
+                        <form method="post" action="{% url 'delete_fuel_record' t.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('هل أنت متأكد من الحذف؟');">
+                                حذف
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if transactions.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+
+        {% if transactions.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ transactions.previous_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.fuel_type %}&fuel_type={{ request.GET.fuel_type }}{% endif %}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.usage_type %}&usage_type={{ request.GET.usage_type }}{% endif %}">
+                    السابق
+                </a>
+            </li>
+        {% endif %}
+
+        {% for num in transactions.paginator.page_range %}
+            {% if transactions.number == num %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+            {% elif num > transactions.number|add:'-3' and num < transactions.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ num }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.fuel_type %}&fuel_type={{ request.GET.fuel_type }}{% endif %}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.usage_type %}&usage_type={{ request.GET.usage_type }}{% endif %}">
+                        {{ num }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if transactions.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                   href="?page={{ transactions.next_page_number }}{% if request.GET.start_date %}&start_date={{ request.GET.start_date }}{% endif %}{% if request.GET.end_date %}&end_date={{ request.GET.end_date }}{% endif %}{% if request.GET.fuel_type %}&fuel_type={{ request.GET.fuel_type }}{% endif %}{% if request.GET.transaction_type %}&transaction_type={{ request.GET.transaction_type }}{% endif %}{% if request.GET.usage_type %}&usage_type={{ request.GET.usage_type }}{% endif %}">
+                    التالي
+                </a>
+            </li>
+        {% endif %}
+
+    </ul>
+</nav>
+{% endif %}
+
+
+    {% else %}
+    <div class="alert alert-info text-center">لا توجد عمليات محروقات</div>
+    {% endif %}
+</div>
+{% endblock %}

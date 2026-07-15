@@ -1,0 +1,42 @@
+{% extends 'reports/base.html' %}
+{% block title %}تعديل سائق{% endblock %}
+
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">تعديل بيانات السائق</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.name.label }}</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.id_number.label }}</label>
+                            {{ form.id_number }}
+                            {% if form.id_number.errors %}
+                                <div class="text-danger small mt-1">{{ form.id_number.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'drivers_list' %}" class="btn btn-secondary">رجوع</a>
+                            <button type="submit" class="btn btn-success">حفظ التعديلات</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

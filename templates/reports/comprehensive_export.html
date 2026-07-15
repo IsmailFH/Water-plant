@@ -1,0 +1,13 @@
+{% extends 'reports/base.html' %}
+{% block title %}تصدير شامل{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">تصدير شامل</h2>
+
+    <div class="text-center">
+        <a href="{% url 'download_comprehensive_excel' %}" class="btn btn-success btn-lg px-5">
+            تنزيل النسخة الشاملة Excel
+        </a>
+    </div>
+</div>
+{% endblock %}

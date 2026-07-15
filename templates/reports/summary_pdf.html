@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+
+<style>
+    body {
+    font-family: "Cairo";
+    background: #f8f9fa;
+        direction: rtl;
+    }
+
+@page {
+    size: A4;
+    margin: 10px;
+}
+
+.page {
+    border: 4px solid #2c3e50;
+    height: 100%;
+    padding: 15px;
+}
+    /* 🔝 الترويسة */
+    .header {
+        text-align: center;
+    border-bottom: 3px solid #0d6efd;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+
+    .company-name {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .company-info {
+        font-size: 12px;
+    }
+
+    /* 📄 بيانات التقرير */
+    .report-meta {
+        width: 100%;
+        margin-top: 10px;
+        font-size: 12px;
+    }
+
+    .report-meta td {
+        padding: 4px;
+    }
+
+    /* 🔹 العناوين */
+    .section-title {
+    background: #0d6efd;
+    color: white;
+
+        padding: 6px;
+        margin-top: 15px;
+        font-size: 13px;
+    }
+
+    /* 📊 الجداول */
+    table.data {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+    }
+
+    table.data th {
+        border: 1px solid #000;
+    background: #343a40;
+    color: white;
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    table.data td {
+        border: 1px solid #000;
+        padding: 6px;
+        font-size: 12px;
+            background: #ffffff;
+    }
+
+    /* 🔚 التوقيع */
+    .signatures {
+        margin-top: 40px;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .sign-box {
+        display: inline-block;
+        width: 40%;
+        margin: 0 20px;
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="page">
+
+```
+<div class="header">
+    <table width="100%">
+        <tr>
+            <td style="width:20%">
+           <img src="/static/logo3.png" width="80">
+            </td>
+
+            <td style="text-align:center">
+                <div class="company-name">محطة سلام لسيقا الماء</div>
+                <div class="company-info">
+                    نظام إدارة وتشغيل المحطة<br>
+                </div>
+            </td>
+
+            <td style="width:20%"></td>
+        </tr>
+    </table>
+</div>
+
+<!-- 📄 بيانات التقرير -->
+<table class="report-meta">
+    <tr>
+        <td><strong>رقم التقرير:</strong> {{ total_cars }}{{ total_cups }}</td>
+        <td><strong>تاريخ الإصدار:</strong> {{ now|date:"Y-m-d" }}</td>
+    </tr>
+    <tr>
+        <td><strong>يوم الإصدار:</strong> {{ now|date:"l" }}</td>
+        <td>
+            <strong>الفترة:</strong>
+            من {{ start_date|default:"بداية السجلات" }}
+            إلى {{ end_date|default:"نهاية السجلات" }}
+        </td>
+    </tr>
+</table>
+
+<!-- 🚗 السيارات -->
+<div class="section-title">بيانات السيارات</div>
+<table class="data">
+    <tr><th>البند</th><th>القيمة</th></tr>
+    <tr><td>عدد السيارات</td><td>{{ total_cars }}</td></tr>
+    <tr><td>عدد السيارات الموثقة</td><td>{{ total_documented }}</td></tr>
+    <tr><td>عدد الأكواب</td><td>{{ total_cups }}</td></tr>
+</table>
+
+<!-- ⛽ الوقود -->
+<div class="section-title">بيانات الوقود</div>
+<table class="data">
+    <tr><th>البند</th><th>القيمة</th></tr>
+    <tr><td>الوارد</td><td>{{ total_fuel_in }}</td></tr>
+    <tr><td>الصادر</td><td>{{ total_fuel_out }}</td></tr>
+    <tr><td>سولار الماتور</td><td>{{ motor_fuel }}</td></tr>
+    <tr><td>سولار السيارات</td><td>{{ vehicle_fuel }}</td></tr>
+    <tr><td>غير مصنف</td><td>{{ unknown_fuel }}</td></tr>
+</table>
+
+<!-- ⏱ التشغيل -->
+<div class="section-title">بيانات التشغيل</div>
+<table class="data">
+    <tr><th>البند</th><th>القيمة</th></tr>
+    <tr>
+        <td>ساعات التشغيل</td>
+        <td>{{ total_hours }} ساعة {{ total_minutes }} دقيقة</td>
+    </tr>
+</table>
+
+<!-- ✍️ التوقيع -->
+<div class="signatures">
+    <div class="sign-box">
+        _______________________<br>
+        توقيع المسؤول
+    </div>
+
+    <div class="sign-box">
+        _______________________<br>
+        ختم المحطة
+    </div>
+</div>
+```
+
+</div>
+
+</body>
+</html>

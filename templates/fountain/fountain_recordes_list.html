@@ -1,0 +1,124 @@
+{% extends 'reports/base.html' %}
+{% block title %} تقرير ماء السبيل{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4"> تعبئة تقرير ماء السبيل</h2>
+<form method="get" class="row g-3 mb-4">
+
+    <div class="col-md-3">
+        <label class="form-label">من تاريخ:</label>
+        <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">إلى تاريخ:</label>
+        <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+    </div>
+
+
+
+<div class="col-md-3">
+    <label class="form-label">ملاحظات:</label>
+    <input type="text" name="notes"  class="form-control" >
+</div>
+
+<div class="col-md-3 d-flex align-items-end gap-2">
+    <button type="submit" class="btn btn-primary w-50">بحث</button>
+    <a href="{% url 'car_records_list' %}" class="btn btn-secondary w-50">إفراغ الفلاتر</a>
+</div>
+
+
+        <div class="text-end mt-3">
+
+    </div>
+    <div class="text-end mt-3">
+    <a href="{% url 'add_fountain_record' %}" class="btn btn-success">إضافة سجل جديد</a>
+    <a href="{% url 'export_fountain_records_excel' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success">تصدير Excel</a>
+    </div>
+</form>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>اليوم</th>
+                    <th>التاريخ</th>
+                    <th>عدد السيارات</th>
+                    <th>ملاحظات</th>
+                    <th>تعديل</th>
+                    <th>حذف</th>
+                </tr>
+            </thead>
+           <tbody>
+    {% for record in records %}
+    <tr>
+        <td>{{ record.day}}</td>
+        <td>{{ record.date }}</td>
+        <td>{{ record.car_count }}</td>
+        <td>{{ record.notes }}</td>
+        <td>
+            <a href="{% url 'edit_fountain_record' record.id %}" class="btn btn-sm btn-warning">تعديل</a>
+        </td>
+        <td>
+    <form action="{% url 'delete_fountain_record' record.id %}" method="post" style="display:inline;" onsubmit="return confirm('هل أنت متأكد من حذف هذا السجل؟');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-danger">حذف</button>
+    </form>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
+        </table>
+<div class="d-flex justify-content-center mt-4">
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if records.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ records.previous_page_number }}">السابق</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">السابق</span>
+                </li>
+            {% endif %}
+
+            {% for num in records.paginator.page_range %}
+                {% if records.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if records.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ records.next_page_number }}">التالي</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">التالي</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+
+    </div>
+
+
+    <div class="row my-4">
+    <div class="col-md-12">
+        <div class="alert alert-info text-center">
+            <h5>إجمالي عدد السيارات: {{ total_car_count }}</h5>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+
+{% endblock %}

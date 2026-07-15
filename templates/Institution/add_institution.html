@@ -1,0 +1,16 @@
+{% extends 'reports/base.html' %}
+{% block title %}إضافة مؤسسة{% endblock %}
+{% block content %}
+<div class="container my-5" dir="rtl">
+    <h2 class="text-center text-primary mb-4">إضافة مؤسسة</h2>
+
+    <form method="post" class="row g-3">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="col-12 text-end">
+            <button type="submit" class="btn btn-success">حفظ</button>
+            <a href="{% url 'institution_list' %}" class="btn btn-secondary">عرض المؤسسات</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
